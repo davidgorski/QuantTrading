@@ -1,0 +1,10 @@
+.bsp
+.idea
+*.class
+*.iml
+*.ipr
+*.iws
+project
+out
+src/main/scala/com/quantTrading/playground
+target
