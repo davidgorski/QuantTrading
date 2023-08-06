@@ -21,7 +21,7 @@ case class RsiStrategyParams(
 case class RsiStrategyState(
   retN: RetN,
   rsi: Rsi,
-  qtyBySymbolByDate: QtyBySymbolByDate,
+  override val qtyBySymbolByDate: QtyBySymbolByDate,
 ) extends StrategyState
 
 

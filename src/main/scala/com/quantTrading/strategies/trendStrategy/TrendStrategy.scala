@@ -25,7 +25,7 @@ case class TrendStrategyParams(
 case class TrendStrategyState(
   volScaledReturnBySymbol: ImmutableMap[Symbol, VolScaledReturnIndex],
   volScaledReturnEmaBySymbol: ImmutableMap[Symbol, Ema],
-  qtyBySymbolByDate: QtyBySymbolByDate,
+  override val qtyBySymbolByDate: QtyBySymbolByDate,
 ) extends StrategyState
 
 

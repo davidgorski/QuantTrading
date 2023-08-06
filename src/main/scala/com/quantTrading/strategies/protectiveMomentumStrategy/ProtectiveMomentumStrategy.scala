@@ -31,7 +31,7 @@ case class ProtectiveMomentumStrategyParams(
 case class ProtectiveMomentumStrategyState(
   emaBySymbol: ImmutableMap[Symbol, Ema],
   counter: Counter,
-  qtyBySymbolByDate: QtyBySymbolByDate,
+  override val qtyBySymbolByDate: QtyBySymbolByDate,
 ) extends StrategyState
 
 

@@ -25,7 +25,7 @@ case class DualMomentumStrategyParams(
 case class DualMomentumStrategyState(
   emaBySymbol: ImmutableMap[Symbol, Ema],
   counter: Counter,
-  qtyBySymbolByDate: QtyBySymbolByDate,
+  override val qtyBySymbolByDate: QtyBySymbolByDate,
 ) extends StrategyState
 
 

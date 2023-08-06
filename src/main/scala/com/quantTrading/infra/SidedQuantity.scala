@@ -21,3 +21,5 @@ case class SidedQuantity(qty: PosZDouble, side: Side) {
     }
   }
 }
+
+case object SidedQuantityEmpty extends SidedQuantity(PosZDouble(0.0), SideBuy)

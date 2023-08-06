@@ -26,7 +26,7 @@ case class XassetStrategyState(
   mainSymbolEma: Ema,
   otherSymbolEma: Ema,
   notionalEma: Ema,
-  qtyBySymbolByDate: QtyBySymbolByDate,
+  override val qtyBySymbolByDate: QtyBySymbolByDate,
 ) extends StrategyState
 
 

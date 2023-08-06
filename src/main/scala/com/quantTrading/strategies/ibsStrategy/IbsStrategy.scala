@@ -19,7 +19,7 @@ case class IbsStrategyParams(
 
 case class IbsStrategyState(
   ibs: Ibs,
-  qtyBySymbolByDate: QtyBySymbolByDate,
+  override val qtyBySymbolByDate: QtyBySymbolByDate,
 ) extends StrategyState
 
 
