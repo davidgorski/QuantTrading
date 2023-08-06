@@ -30,8 +30,8 @@ case class TrendStrategyState(
 
 
 case class TrendStrategy(
-  params: TrendStrategyParams,
-  state: TrendStrategyState
+  override val params: TrendStrategyParams,
+  override val state: TrendStrategyState
 ) extends BacktestIterator[ImmutableMap[Symbol, OhlcvBase], Unit, TrendStrategy, TrendStrategyParams, TrendStrategyState] {
 
   override def valueMaybe: Unit = {}

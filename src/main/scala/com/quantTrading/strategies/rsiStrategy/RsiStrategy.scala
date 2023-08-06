@@ -26,8 +26,8 @@ case class RsiStrategyState(
 
 
 case class RsiStrategy(
-  params: RsiStrategyParams,
-  state: RsiStrategyState
+  override val params: RsiStrategyParams,
+  override val state: RsiStrategyState
 ) extends BacktestIterator[ImmutableMap[Symbol, OhlcvBase], Unit, RsiStrategy, RsiStrategyParams, RsiStrategyState] {
 
   override def valueMaybe: Unit = {}

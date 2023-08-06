@@ -35,8 +35,8 @@ case class ProtectiveMomentumStrategyState(
 
 
 case class ProtectiveMomentumStrategy(
-  params: ProtectiveMomentumStrategyParams,
-  state: ProtectiveMomentumStrategyState
+  override val params: ProtectiveMomentumStrategyParams,
+  override val state: ProtectiveMomentumStrategyState
 ) extends BacktestIterator[ImmutableMap[Symbol, OhlcvBase], Unit, ProtectiveMomentumStrategy, ProtectiveMomentumStrategyParams, ProtectiveMomentumStrategyState] {
 
   override def valueMaybe: Unit = {}

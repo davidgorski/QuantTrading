@@ -30,8 +30,8 @@ case class DualMomentumStrategyState(
 
 
 case class DualMomentumStrategy(
-  params: DualMomentumStrategyParams,
-  state: DualMomentumStrategyState
+  override val params: DualMomentumStrategyParams,
+  override val state: DualMomentumStrategyState
 ) extends BacktestIterator[ImmutableMap[Symbol, OhlcvBase], Unit, DualMomentumStrategy, DualMomentumStrategyParams, DualMomentumStrategyState] {
 
   override def valueMaybe: Unit = {}

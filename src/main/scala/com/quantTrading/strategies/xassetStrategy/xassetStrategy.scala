@@ -30,8 +30,8 @@ case class XassetStrategyState(
 
 
 case class XassetStrategy(
-  params: XassetStrategyParams,
-  state: XassetStrategyState
+  override val params: XassetStrategyParams,
+  override val state: XassetStrategyState
 ) extends BacktestIterator[ImmutableMap[Symbol, OhlcvBase], Unit, XassetStrategy, XassetStrategyParams, XassetStrategyState] {
 
   override def valueMaybe: Unit = {}

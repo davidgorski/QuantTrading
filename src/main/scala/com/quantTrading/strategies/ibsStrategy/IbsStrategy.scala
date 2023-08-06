@@ -23,8 +23,8 @@ case class IbsStrategyState(
 
 
 case class IbsStrategy(
-  params: IbsStrategyParams,
-  state: IbsStrategyState
+  override val params: IbsStrategyParams,
+  override val state: IbsStrategyState
 ) extends BacktestIterator[ImmutableMap[Symbol, OhlcvBase], Unit, IbsStrategy, IbsStrategyParams, IbsStrategyState] {
 
   override def valueMaybe: Unit = {}
