@@ -1,6 +1,6 @@
 package com.quantTrading.strategies.rsiStrategy
 
-import com.quantTrading.infra.{BacktestIterator, OhlcvBase, QtyBySymbolByDate, StrategyParamsBase, StrategyState}
+import com.quantTrading.infra.{BacktestIterator, OhlcvBase, QtyBySymbolByDate, Strategy, StrategyParamsBase, StrategyState}
 import com.quantTrading.signals.{RetN, RetNParams, Rsi, RsiParams}
 import com.quantTrading.symbols.Symbol
 import com.quantTrading.strategies
@@ -28,9 +28,7 @@ case class RsiStrategyState(
 case class RsiStrategy(
   override val params: RsiStrategyParams,
   override val state: RsiStrategyState
-) extends BacktestIterator[ImmutableMap[Symbol, OhlcvBase], Unit, RsiStrategy, RsiStrategyParams, RsiStrategyState] {
-
-  override def valueMaybe: Unit = {}
+) extends Strategy[RsiStrategy, RsiStrategyParams, RsiStrategyState] {
 
   override def onData(ohlcBySymbol: ImmutableMap[Symbol, OhlcvBase]): RsiStrategy = {
     val date = ohlcBySymbol.values.head.date

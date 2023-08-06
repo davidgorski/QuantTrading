@@ -1,9 +1,10 @@
 package com.quantTrading.strategies.ibsStrategy
 
-import com.quantTrading.infra.{BacktestIterator, OhlcvBase, QtyBySymbolByDate, StrategyParamsBase, StrategyState}
+import com.quantTrading.infra.{BacktestIterator, OhlcvBase, QtyBySymbolByDate, Strategy, StrategyParamsBase, StrategyState}
 import com.quantTrading.signals.{Ibs, IbsParams}
 import com.quantTrading.symbols.Symbol
 import org.scalactic.anyvals.{PosDouble, PosLong, PosZDouble}
+
 import scala.collection.immutable.{Map => ImmutableMap}
 
 
@@ -25,9 +26,7 @@ case class IbsStrategyState(
 case class IbsStrategy(
   override val params: IbsStrategyParams,
   override val state: IbsStrategyState
-) extends BacktestIterator[ImmutableMap[Symbol, OhlcvBase], Unit, IbsStrategy, IbsStrategyParams, IbsStrategyState] {
-
-  override def valueMaybe: Unit = {}
+) extends Strategy[IbsStrategy, IbsStrategyParams, IbsStrategyState] {
 
   override def onData(ohlcBySymbol: ImmutableMap[Symbol, OhlcvBase]): IbsStrategy = {
     val date = ohlcBySymbol.values.head.date

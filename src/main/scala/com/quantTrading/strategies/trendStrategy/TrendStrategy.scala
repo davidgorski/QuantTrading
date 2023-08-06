@@ -1,6 +1,6 @@
 package com.quantTrading.strategies.trendStrategy
 
-import com.quantTrading.infra.{BacktestIterator, OhlcvBase, QtyBySymbolByDate, Side, SidedQuantity, StrategyParamsBase, StrategyState}
+import com.quantTrading.infra.{BacktestIterator, OhlcvBase, QtyBySymbolByDate, Side, SidedQuantity, Strategy, StrategyParamsBase, StrategyState}
 import com.quantTrading.signals._
 import com.quantTrading.symbols.Symbol
 import org.scalactic.anyvals.{PosDouble, PosZDouble}
@@ -32,9 +32,7 @@ case class TrendStrategyState(
 case class TrendStrategy(
   override val params: TrendStrategyParams,
   override val state: TrendStrategyState
-) extends BacktestIterator[ImmutableMap[Symbol, OhlcvBase], Unit, TrendStrategy, TrendStrategyParams, TrendStrategyState] {
-
-  override def valueMaybe: Unit = {}
+) extends Strategy[TrendStrategy, TrendStrategyParams, TrendStrategyState] {
 
   override def onData(ohlcBySymbol: ImmutableMap[Symbol, OhlcvBase]): TrendStrategy = {
     val volScaledReturnBySymbolNew: MutableMap[Symbol, VolScaledReturnIndex] = MutableMap[Symbol, VolScaledReturnIndex]()

@@ -1,6 +1,6 @@
 package com.quantTrading.strategies.dualMomentumStrategy
 
-import com.quantTrading.infra.{BacktestIterator, OhlcvBase, QtyBySymbolByDate, SidedQuantity, StrategyParamsBase, StrategyState}
+import com.quantTrading.infra.{BacktestIterator, OhlcvBase, QtyBySymbolByDate, SidedQuantity, Strategy, StrategyParamsBase, StrategyState}
 import com.quantTrading.signals._
 import com.quantTrading.symbols.Symbol
 import com.quantTrading.infra.Side.SideBuy
@@ -32,9 +32,7 @@ case class DualMomentumStrategyState(
 case class DualMomentumStrategy(
   override val params: DualMomentumStrategyParams,
   override val state: DualMomentumStrategyState
-) extends BacktestIterator[ImmutableMap[Symbol, OhlcvBase], Unit, DualMomentumStrategy, DualMomentumStrategyParams, DualMomentumStrategyState] {
-
-  override def valueMaybe: Unit = {}
+) extends Strategy[DualMomentumStrategy, DualMomentumStrategyParams, DualMomentumStrategyState] {
 
   override def onData(ohlcBySymbol: ImmutableMap[Symbol, OhlcvBase]): DualMomentumStrategy = {
     val emaBySymbolNewMut: MutableMap[Symbol, Ema] = MutableMap[Symbol, Ema]()

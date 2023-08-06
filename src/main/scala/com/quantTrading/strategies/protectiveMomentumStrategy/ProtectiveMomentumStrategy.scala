@@ -1,10 +1,11 @@
 package com.quantTrading.strategies.protectiveMomentumStrategy
 
-import com.quantTrading.infra.{BacktestIterator, OhlcvBase, QtyBySymbolByDate, SidedQuantity, StrategyParamsBase, StrategyState}
+import com.quantTrading.infra.{BacktestIterator, OhlcvBase, QtyBySymbolByDate, SidedQuantity, Strategy, StrategyParamsBase, StrategyState}
 import com.quantTrading.signals._
 import com.quantTrading.symbols.Symbol
 import com.quantTrading.infra.Side.SideBuy
 import org.scalactic.anyvals.{PosDouble, PosLong, PosZDouble}
+
 import scala.collection.immutable.{Map => ImmutableMap}
 import scala.collection.mutable.{Map => MutableMap}
 
@@ -37,9 +38,7 @@ case class ProtectiveMomentumStrategyState(
 case class ProtectiveMomentumStrategy(
   override val params: ProtectiveMomentumStrategyParams,
   override val state: ProtectiveMomentumStrategyState
-) extends BacktestIterator[ImmutableMap[Symbol, OhlcvBase], Unit, ProtectiveMomentumStrategy, ProtectiveMomentumStrategyParams, ProtectiveMomentumStrategyState] {
-
-  override def valueMaybe: Unit = {}
+) extends Strategy[ProtectiveMomentumStrategy, ProtectiveMomentumStrategyParams, ProtectiveMomentumStrategyState] {
 
   override def onData(ohlcBySymbol: ImmutableMap[Symbol, OhlcvBase]): ProtectiveMomentumStrategy = {
     val emaBySymbolNewMut: MutableMap[Symbol, Ema] = MutableMap[Symbol, Ema]()

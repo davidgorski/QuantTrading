@@ -1,10 +1,11 @@
 package com.quantTrading.strategies.xassetStrategy
 
-import com.quantTrading.infra.{BacktestIterator, OhlcvBase, QtyBySymbolByDate, SidedQuantity, StrategyParamsBase, StrategyState}
+import com.quantTrading.infra.{BacktestIterator, OhlcvBase, QtyBySymbolByDate, SidedQuantity, Strategy, StrategyParamsBase, StrategyState}
 import com.quantTrading.signals._
 import com.quantTrading.symbols.Symbol
 import com.quantTrading.infra.Side.SideBuy
 import org.scalactic.anyvals.{PosDouble, PosLong, PosZDouble}
+
 import scala.collection.immutable.{Map => ImmutableMap}
 import scala.collection.mutable.{Map => MutableMap}
 
@@ -32,9 +33,7 @@ case class XassetStrategyState(
 case class XassetStrategy(
   override val params: XassetStrategyParams,
   override val state: XassetStrategyState
-) extends BacktestIterator[ImmutableMap[Symbol, OhlcvBase], Unit, XassetStrategy, XassetStrategyParams, XassetStrategyState] {
-
-  override def valueMaybe: Unit = {}
+) extends Strategy[XassetStrategy, XassetStrategyParams, XassetStrategyState] {
 
   override def onData(ohlcBySymbol: ImmutableMap[Symbol, OhlcvBase]): XassetStrategy = {
     val date = ohlcBySymbol.values.head.date
