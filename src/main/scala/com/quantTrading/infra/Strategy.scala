@@ -4,9 +4,9 @@ import scala.collection.immutable.{Map => ImmutableMap}
 import com.quantTrading.symbols.Symbol
 
 trait Strategy[
-  This <: BacktestIterator[ImmutableMap[Symbol, OhlcvBase], Unit, This, _, _],
-  Params <: ParamsBase,
-  State <: StateBase
+  This <: Strategy[This, Params, State],
+  +Params <: ParamsBase,
+  +State <: StateBase
 ] extends BacktestIterator[ImmutableMap[Symbol, OhlcvBase], Unit, This, Params, State] {
 
   this: This =>

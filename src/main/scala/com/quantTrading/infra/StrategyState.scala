@@ -3,10 +3,11 @@ package com.quantTrading.infra
 import com.quantTrading.infra.Side.{Side, SideBuy, SideSell}
 import com.quantTrading.symbols.Symbol
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
-import org.scalactic.anyvals.PosZDouble
+import org.scalactic.anyvals.{PosDouble, PosZDouble}
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation
+
 import java.time.LocalDate
-import scala.collection.immutable.{SortedMap => ImmutableSortedMap, Map => ImmutableMap}
+import scala.collection.immutable.{Map => ImmutableMap, SortedMap => ImmutableSortedMap}
 import scala.collection.mutable.{Map => MutableMap, SortedMap => MutableSortedMap}
 
 
@@ -92,6 +93,45 @@ trait StrategyState extends StateBase {
 case class QtyBySymbolByDate(
   qtyBySymbolByDate: ImmutableSortedMap[LocalDate, ImmutableMap[Symbol, SidedQuantity]] = ImmutableSortedMap[LocalDate, ImmutableMap[Symbol, SidedQuantity]]()(Ordering.by(_.toEpochDay))
 ) {
+
+  def +(that: QtyBySymbolByDate): QtyBySymbolByDate = {
+    val localDates = this.qtyBySymbolByDate.keySet ++ that.qtyBySymbolByDate.keySet
+    val immutableMap: ImmutableMap[LocalDate, ImmutableMap[Symbol, SidedQuantity]] =
+      localDates
+      .map { localDate =>
+        val thisSymbolMap = this.qtyBySymbolByDate.getOrElse(localDate, ImmutableMap[Symbol, SidedQuantity]())
+        val thatSymbolMap = that.qtyBySymbolByDate.getOrElse(localDate, ImmutableMap[Symbol, SidedQuantity]())
+        val keySetInner: Set[Symbol] = thisSymbolMap.keySet ++ thatSymbolMap.keySet
+        val symbolToSidedQty: ImmutableMap[Symbol, SidedQuantity] =
+          keySetInner.map { symbol =>
+            val sidedQtyNew = thisSymbolMap.getOrElse(symbol, SidedQuantity.empty) + thatSymbolMap.getOrElse(symbol, SidedQuantity.empty)
+            (symbol, sidedQtyNew)
+          }.toMap
+        (localDate, symbolToSidedQty)
+      }.toMap
+    val sortedMap: ImmutableSortedMap[LocalDate, ImmutableMap[Symbol, SidedQuantity]] = (
+      ImmutableSortedMap.empty[LocalDate, ImmutableMap[Symbol, SidedQuantity]](Ordering.by(_.toEpochDay))
+      ++ immutableMap
+    )
+    QtyBySymbolByDate(sortedMap)
+  }
+
+  def *(scalar: PosDouble): QtyBySymbolByDate = {
+
+    val immutableMap: ImmutableMap[LocalDate, ImmutableMap[Symbol, SidedQuantity]] =
+      this.qtyBySymbolByDate.map { kv =>
+        val localDate: LocalDate = kv._1
+        val qtyBySymbol: ImmutableMap[Symbol, SidedQuantity] = kv._2
+        (localDate, qtyBySymbol.map { kvInner => (kvInner._1, kvInner._2 * scalar) } )
+      }
+
+    val qtyBySymbolByDateNew: ImmutableSortedMap[LocalDate, ImmutableMap[Symbol, SidedQuantity]] = (
+      ImmutableSortedMap.empty[LocalDate, ImmutableMap[Symbol, SidedQuantity]](Ordering.by(_.toEpochDay))
+        ++ immutableMap
+      )
+
+    QtyBySymbolByDate(qtyBySymbolByDateNew)
+  }
 
   def updateNotionals(
     date: LocalDate,

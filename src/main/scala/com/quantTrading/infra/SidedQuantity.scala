@@ -1,7 +1,7 @@
 package com.quantTrading.infra
 
 import com.quantTrading.infra.Side.{Side, SideBuy, SideSell}
-import org.scalactic.anyvals.PosZDouble
+import org.scalactic.anyvals.{PosDouble, PosZDouble}
 
 case class SidedQuantity(qty: PosZDouble, side: Side) {
 
@@ -14,6 +14,10 @@ case class SidedQuantity(qty: PosZDouble, side: Side) {
     }
   }
 
+  def *(scalar: PosDouble): SidedQuantity = {
+    SidedQuantity(PosZDouble.from(this.qtySigned * scalar.value).get, this.side)
+  }
+
   def qtySigned: Double = {
     this.side match {
       case SideBuy => qty.value
@@ -22,4 +26,7 @@ case class SidedQuantity(qty: PosZDouble, side: Side) {
   }
 }
 
-case object SidedQuantityEmpty extends SidedQuantity(PosZDouble(0.0), SideBuy)
+object SidedQuantity {
+
+  def empty: SidedQuantity = SidedQuantity(PosZDouble(0.0), SideBuy)
+}

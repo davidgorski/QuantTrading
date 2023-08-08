@@ -8,7 +8,7 @@ package com.quantTrading.infra
  * @tparam Params     the params type (a subtype of ParamsBase)
  * @tparam State      the state type (a subtype of StateBase)
  */
-trait BacktestIterator[Input, ValueMaybe, This <: BacktestIterator[_, _, This, _, _], Params <: ParamsBase, State <: StateBase] {
+trait BacktestIterator[Input, ValueMaybe, This <: BacktestIterator[_, _, This, _, _], +Params <: ParamsBase, +State <: StateBase] {
 
   this: This =>
 
