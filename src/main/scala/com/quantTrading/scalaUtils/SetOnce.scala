@@ -10,4 +10,8 @@ class SetOnce[A](var toOption: Option[A] = None) {
   }
 
   def get: A = toOption.get
+
+  def isSet: Boolean = toOption.isDefined
+
+  def isUnset: Boolean = toOption.isEmpty
 }
