@@ -1,8 +1,9 @@
 package com.quantTrading.alphaVantage
 
 
-import com.quantTrading.infra.{OhlcvBase, StrategyResult, StrategyResultSerializable}
-import com.quantTrading.mongoUtils.Helpers.GenericObservable
+import com.quantTrading.infra.{OhlcvBase, Strategy, StrategyParamsBase, StrategyResult, StrategyResultSerializable, StrategyState}
+import com.quantTrading.strategies.compositeStrategy.CompositeStrategy
+import com.quantTrading.strategies.compositeStrategy.{CompositeStrategy, CompositeStrategyParams}
 import com.quantTrading.strategies.ibsStrategy.{IbsStrategy, IbsStrategyParams}
 import com.quantTrading.strategies.rsiStrategy.{RsiStrategy, RsiStrategyParams}
 import com.quantTrading.strategies.trendStrategy.{TrendStrategy, TrendStrategyParams}
@@ -204,9 +205,35 @@ object AlphaVantage extends StrictLogging {
     var xAssetStrategySpyHyg: XassetStrategy = XassetStrategy(XassetStrategyParams("Xasset SPY HYG", PosDouble(5.0), Symbol.SPY, Symbol.HYG, PosDouble(3333333.33)))
     var xAssetStrategyQqqHyg: XassetStrategy = XassetStrategy(XassetStrategyParams("Xasset QQQ HYG", PosDouble(5.0), Symbol.QQQ, Symbol.HYG, PosDouble(2500000.00)))
 
+
+    val strategyList: List[Strategy[_, StrategyParamsBase, StrategyState]] = List[Strategy[_, StrategyParamsBase, StrategyState]](
+      rsiStrategy,
+      trendStrategy,
+      dualMomentumStrategy,
+      protectiveMomentumStrategy,
+      ibsStrategySpy,
+      ibsStrategyQqq,
+      ibsStrategyTlt,
+      ibsStrategyIef,
+      xAssetStrategySpyTlt,
+      xAssetStrategySpyIef,
+      xAssetStrategyQqqTlt,
+      xAssetStrategyQqqIef,
+      xAssetStrategySpyHyg,
+      xAssetStrategyQqqHyg
+    )
+
+    var compositeStrategy: CompositeStrategy = CompositeStrategy(CompositeStrategyParams(
+      "CompositeStrategy",
+      strategyList,
+      PosDouble(1000000.0)
+    ))
+
     // run strategies
     val t2 = System.nanoTime()
     for (date <- ohlcByDateBySymbol.keys) {
+      compositeStrategy = compositeStrategy.onData(ohlcByDateBySymbol(date))
+      /*
       rsiStrategy = rsiStrategy.onData(ohlcByDateBySymbol(date))
       trendStrategy = trendStrategy.onData(ohlcByDateBySymbol(date))
       ibsStrategySpy = ibsStrategySpy.onData(ohlcByDateBySymbol(date))
@@ -221,9 +248,16 @@ object AlphaVantage extends StrictLogging {
       xAssetStrategyQqqIef = xAssetStrategyQqqIef.onData(ohlcByDateBySymbol(date))
       xAssetStrategySpyHyg = xAssetStrategySpyHyg.onData(ohlcByDateBySymbol(date))
       xAssetStrategyQqqHyg = xAssetStrategyQqqHyg.onData(ohlcByDateBySymbol(date))
+      */
     }
     val t3 = System.nanoTime()
 
+    println("calculating results")
+    val compositeStrategyResult: StrategyResult = compositeStrategy.state.getStrategyResult(ohlcByDateBySymbol)
+    val t4 = System.nanoTime()
+    println(compositeStrategyResult)
+
+    /*
     val rsiStrategyResult: StrategyResult = rsiStrategy.state.getStrategyResult(ohlcByDateBySymbol)
     val trendStrategyResult: StrategyResult = trendStrategy.state.getStrategyResult(ohlcByDateBySymbol)
     val ibsStrategySpyResult: StrategyResult = ibsStrategySpy.state.getStrategyResult(ohlcByDateBySymbol)
@@ -253,7 +287,8 @@ object AlphaVantage extends StrictLogging {
     println(xAssetStrategyQqqIefResult)
     println(xAssetStrategySpyHygResult)
     println(xAssetStrategyQqqHygResult)
-
+    */
+    /*
     val strategyResultSerializable: StrategyResultSerializable = StrategyResultSerializable(rsiStrategyResult)
 
     val codecRegistry = fromRegistries(fromProviders(classOf[StrategyResultSerializable]), DEFAULT_CODEC_REGISTRY)
@@ -275,6 +310,7 @@ object AlphaVantage extends StrictLogging {
     //println(Await.result(f1, Duration.Inf))
     //println(Await.result(f2, Duration.Inf))
     val t4 = System.nanoTime()
+    */
 
     println("time: " + ((t1 - t0) / 1e9).toString)
     println("time: " + ((t2 - t1) / 1e9).toString)
