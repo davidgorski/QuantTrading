@@ -2,7 +2,6 @@ package com.quantTrading
 
 import com.quantTrading.dateUtils.DateUtils
 import com.quantTrading.dateUtils.DateUtils.MarketCalendar
-
 import java.time.ZoneId
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
@@ -14,7 +13,7 @@ object Settings {
 
   val TIMEZONE: ZoneId = ZoneId.of("America/New_York")
 
-  val ALPHAVANTAGE_API_KEY: String = "TODO"
+  val ALPHAVANTAGE_API_KEY: String = sys.env("ALPHAVANTAGE_API_KEY")
 
   val NYSE_CALENDAR: MarketCalendar = DateUtils.getNyseCalendar()
 
