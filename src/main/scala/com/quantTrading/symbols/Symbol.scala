@@ -37,7 +37,7 @@ object Symbol {
     LQD
   )
 
-  def fromString(symbolString: String): Symbol = {
+  def apply(symbolString: String): Symbol = {
     for (symbol <- symbols) {
       if (symbol.symbol.equalsIgnoreCase(symbol.symbol))
         return symbol

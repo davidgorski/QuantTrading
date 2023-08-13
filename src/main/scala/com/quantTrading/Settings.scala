@@ -2,7 +2,8 @@ package com.quantTrading
 
 import com.quantTrading.dateUtils.DateUtils
 import com.quantTrading.dateUtils.DateUtils.MarketCalendar
-import java.time.ZoneId
+
+import java.time.{LocalDate, ZoneId}
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 
@@ -16,5 +17,7 @@ object Settings {
   val ALPHAVANTAGE_API_KEY: String = sys.env("ALPHAVANTAGE_API_KEY")
 
   val NYSE_CALENDAR: MarketCalendar = DateUtils.getNyseCalendar()
+
+  val TODAY: LocalDate = DateUtils.getMostRecentBizdayIncludingToday(NYSE_CALENDAR)
 
 }

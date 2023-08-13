@@ -72,13 +72,13 @@ object StrategyResult {
 
     val notionalBySymbolTday = ImmutableMap[Symbol, SidedNotional](
       strategyResultSerializable.notionalBySymbolTday.map(kv =>
-        (Symbol.fromString(kv._1) -> SidedNotional(kv._2))
+        (Symbol(kv._1) -> SidedNotional(kv._2))
       ).toArray: _*
     )
 
     val notionalBySymbolYday = ImmutableMap[Symbol, SidedNotional](
       strategyResultSerializable.notionalBySymbolYday.map(kv =>
-        (Symbol.fromString(kv._1) -> SidedNotional(kv._2))
+        (Symbol(kv._1) -> SidedNotional(kv._2))
       ).toArray: _*
     )
 

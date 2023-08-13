@@ -1,5 +1,7 @@
 package com.quantTrading.dateUtils
 
+import com.quantTrading.Settings
+
 import java.time.{LocalDate, ZonedDateTime}
 import java.time.format.DateTimeFormatter
 import scala.collection.immutable.SortedMap
@@ -15,8 +17,36 @@ object DateUtils {
   case class MarketCalendar(sortedMap: SortedMap[LocalDate, MarketTimes]) {
 
     def getTradingDates: List[LocalDate] = sortedMap.keys.toList
+  }
 
-    def isTradingDate(date: LocalDate): Boolean = sortedMap.contains(date)
+  def addBizdays(date: LocalDate, nBizDays: Int, marketCalendar: MarketCalendar): LocalDate = {
+    val busdays = marketCalendar.getTradingDates
+    val dateIndex = busdays.indexOf(date)
+
+    if (dateIndex < 0)
+      throw new RuntimeException(s"addBizdays must be called from a starting business day but ${date.format(DateTimeFormatter.ISO_DATE)} is not a business date")
+
+    if (dateIndex + nBizDays < 0)
+      throw new RuntimeException(s"${date.format(DateTimeFormatter.ISO_DATE)} + $nBizDays is before the earliest business day in the calendar")
+
+    if (dateIndex + nBizDays >= busdays.size)
+      throw new RuntimeException(s"${date.format(DateTimeFormatter.ISO_DATE)} + $nBizDays is after the latest business day in the calendar")
+
+    busdays(dateIndex + nBizDays)
+  }
+
+  def getMostRecentBizdayIncludingToday(marketCalendar: MarketCalendar): LocalDate = {
+    val tday = LocalDate.now(Settings.TIMEZONE)
+    val tradingDates = marketCalendar.getTradingDates
+    if (tradingDates.contains(tday))
+      tday
+    else {
+      var dt = tday
+      while (!tradingDates.contains(dt)) {
+        dt = dt.minusDays(1L)
+      }
+      dt
+    }
   }
 
   def getNyseCalendar(): MarketCalendar = {
@@ -33,5 +63,4 @@ object DateUtils {
     val sortedMap = SortedMap[LocalDate, MarketTimes](mutMap.toArray:_*)(Ordering.by(_.toEpochDay))
     MarketCalendar(sortedMap)
   }
-
 }

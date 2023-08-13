@@ -1,5 +1,7 @@
 package com.quantTrading.infra
 
+import com.quantTrading.Settings
+import com.quantTrading.dateUtils.DateUtils
 import com.quantTrading.infra.Side.{Side, SideBuy, SideSell}
 import com.quantTrading.symbols.Symbol
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
@@ -16,7 +18,7 @@ trait StrategyState extends StateBase {
   def qtyBySymbolByDate: QtyBySymbolByDate
 
   def getStrategyResult(
-    ohlcByDateBySymbol: ImmutableSortedMap[LocalDate, ImmutableMap[Symbol, OhlcvBase]]
+    ohlcvByDateBySymbol: ImmutableSortedMap[LocalDate, ImmutableMap[Symbol, OhlcvBase]]
   ): StrategyResult = {
 
     val pnlByDateMut: MutableSortedMap[LocalDate, Double] = MutableSortedMap[LocalDate, Double]()(Ordering.by(_.toEpochDay))
@@ -32,10 +34,10 @@ trait StrategyState extends StateBase {
       if (i > 0) {
         val dateYday: LocalDate = dates(i-1)
         var inTheMarket: Boolean = false
-        for (symbol <- ohlcByDateBySymbol(dateTday).keys) {
+        for (symbol <- ohlcvByDateBySymbol(dateTday).keys) {
           val qtyYdayMaybe: Option[SidedQuantity] = qtyBySymbolByDate.qtyBySymbolByDate(dateYday).get(symbol)
-          val ohlcvYdayMaybe: Option[OhlcvBase] = ohlcByDateBySymbol(dateYday).get(symbol)
-          val ohlcvTdayMaybe: Option[OhlcvBase] = ohlcByDateBySymbol(dateTday).get(symbol)
+          val ohlcvYdayMaybe: Option[OhlcvBase] = ohlcvByDateBySymbol(dateYday).get(symbol)
+          val ohlcvTdayMaybe: Option[OhlcvBase] = ohlcvByDateBySymbol(dateTday).get(symbol)
           val pnlNew: Double = (qtyYdayMaybe, ohlcvYdayMaybe, ohlcvTdayMaybe) match {
 
               case (Some(SidedQuantity(qtyYday: PosZDouble, side: Side)), Some(ohlcvYday: OhlcvBase), Some(ohlcvTday: OhlcvBase)) =>
@@ -75,9 +77,24 @@ trait StrategyState extends StateBase {
     val startDate: LocalDate = pnlByDate.keys.minBy(_.toEpochDay)
     val endDate: LocalDate = pnlByDate.keys.maxBy(_.toEpochDay)
 
-    val notionalBySymbolTday: ImmutableMap[Symbol, SidedNotional] = ???
-    val notionalBySymbolYday: ImmutableMap[Symbol, SidedNotional] = ???
-
+    val tday: LocalDate = Settings.TODAY
+    val yday: LocalDate = DateUtils.addBizdays(tday, -1, Settings.NYSE_CALENDAR)
+    val qtyBySymbolTday: ImmutableMap[Symbol, SidedQuantity] = qtyBySymbolByDate.qtyBySymbolByDate(tday)
+    val qtyBySymbolYday: ImmutableMap[Symbol, SidedQuantity] = qtyBySymbolByDate.qtyBySymbolByDate(yday)
+    val ohlcvTday: ImmutableMap[Symbol, OhlcvBase] = ohlcvByDateBySymbol(tday)
+    val ohlcvYday: ImmutableMap[Symbol, OhlcvBase] = ohlcvByDateBySymbol(yday)
+    val notionalBySymbolTday: ImmutableMap[Symbol, SidedNotional] =
+      qtyBySymbolTday.map { kv =>
+        val symbol = kv._1
+        val sidedQuantity = kv._2
+        (symbol, SidedNotional(sidedQuantity, ohlcvTday(symbol).close))
+      }
+    val notionalBySymbolYday: ImmutableMap[Symbol, SidedNotional] =
+      qtyBySymbolYday.map { kv =>
+        val symbol = kv._1
+        val sidedQuantity = kv._2
+        (symbol, SidedNotional(sidedQuantity, ohlcvYday(symbol).close))
+      }
     val strategyPerformance = StrategyResult(
       pnlByDate,
       sharpe,
