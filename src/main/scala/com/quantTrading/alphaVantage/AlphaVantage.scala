@@ -158,16 +158,18 @@ object AlphaVantage extends StrictLogging {
     }
     val t3 = System.nanoTime()
 
-    // print results
+    // print results and store them
     strategyMap.keys.foreach { strategyName =>
       val strategyResult = strategyMap(strategyName).state.getStrategyResult(ohlcByDateBySymbol)
+      val strategyResultSerializable: StrategyResultSerializable = StrategyResultSerializable(strategyResult)
+
       println(strategyName)
       println(strategyResult)
+      println(strategyResultSerializable)
+      println()
     }
 
     /*
-    val strategyResultSerializable: StrategyResultSerializable = StrategyResultSerializable(rsiStrategyResult)
-
     val codecRegistry = fromRegistries(fromProviders(classOf[StrategyResultSerializable]), DEFAULT_CODEC_REGISTRY)
     //XIT0VXT4RZKRUEHFbeyond
     val mongoUri: String = "mongodb+srv://dgorski:XJNLm37RUtsasmEA@cluster0.wkwbxcv.mongodb.net/?retryWrites=true&w=majority"
