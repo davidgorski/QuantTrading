@@ -17,7 +17,7 @@ case class IbsState(
 case class Ibs(
   params: IbsParams,
   state: IbsState
-) extends BacktestIterator[OhlcvBase, Option[PosZDouble], Ibs, IbsParams, IbsState] {
+) extends BacktestIterator[OhlcvBase, Option[PosZDouble], IbsParams, IbsState] {
 
   override def onData(ohlcv: OhlcvBase): Ibs = {
     val highsNew = this.state.highs.enqueueFinite(ohlcv.high, this.params.lookback.toInt)

@@ -38,7 +38,7 @@ case class ProtectiveMomentumStrategyState(
 case class ProtectiveMomentumStrategy(
   override val params: ProtectiveMomentumStrategyParams,
   override val state: ProtectiveMomentumStrategyState
-) extends Strategy[ProtectiveMomentumStrategy, ProtectiveMomentumStrategyParams, ProtectiveMomentumStrategyState] {
+) extends Strategy[ProtectiveMomentumStrategyParams, ProtectiveMomentumStrategyState] {
 
   override def onData(ohlcBySymbol: ImmutableMap[Symbol, OhlcvBase]): ProtectiveMomentumStrategy = {
     val emaBySymbolNewMut: MutableMap[Symbol, Ema] = MutableMap[Symbol, Ema]()

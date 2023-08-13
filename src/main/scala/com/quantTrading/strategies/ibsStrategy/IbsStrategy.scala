@@ -26,7 +26,7 @@ case class IbsStrategyState(
 case class IbsStrategy(
   override val params: IbsStrategyParams,
   override val state: IbsStrategyState
-) extends Strategy[IbsStrategy, IbsStrategyParams, IbsStrategyState] {
+) extends Strategy[IbsStrategyParams, IbsStrategyState] {
 
   override def onData(ohlcBySymbol: ImmutableMap[Symbol, OhlcvBase]): IbsStrategy = {
     val date = ohlcBySymbol.values.head.date

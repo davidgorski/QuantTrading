@@ -28,7 +28,7 @@ case class RsiStrategyState(
 case class RsiStrategy(
   override val params: RsiStrategyParams,
   override val state: RsiStrategyState
-) extends Strategy[RsiStrategy, RsiStrategyParams, RsiStrategyState] {
+) extends Strategy[RsiStrategyParams, RsiStrategyState] {
 
   override def onData(ohlcBySymbol: ImmutableMap[Symbol, OhlcvBase]): RsiStrategy = {
     val date = ohlcBySymbol.values.head.date

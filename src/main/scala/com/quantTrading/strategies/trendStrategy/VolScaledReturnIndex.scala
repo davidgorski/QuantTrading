@@ -18,7 +18,7 @@ case class VolScaledReturnIndexState(
 case class VolScaledReturnIndex(
   params: VolScaledReturnIndexParams,
   state: VolScaledReturnIndexState,
-) extends BacktestIterator[OhlcvBase, Option[Double], VolScaledReturnIndex, VolScaledReturnIndexParams, VolScaledReturnIndexState] {
+) extends BacktestIterator[OhlcvBase, Option[Double], VolScaledReturnIndexParams, VolScaledReturnIndexState] {
 
   override def onData(ohlcv: OhlcvBase): VolScaledReturnIndex = {
     val ret1New = this.state.ret1.onData(ohlcv)

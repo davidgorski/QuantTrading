@@ -32,7 +32,7 @@ case class TrendStrategyState(
 case class TrendStrategy(
   override val params: TrendStrategyParams,
   override val state: TrendStrategyState
-) extends Strategy[TrendStrategy, TrendStrategyParams, TrendStrategyState] {
+) extends Strategy[TrendStrategyParams, TrendStrategyState] {
 
   override def onData(ohlcBySymbol: ImmutableMap[Symbol, OhlcvBase]): TrendStrategy = {
     val volScaledReturnBySymbolNew: MutableMap[Symbol, VolScaledReturnIndex] = MutableMap[Symbol, VolScaledReturnIndex]()

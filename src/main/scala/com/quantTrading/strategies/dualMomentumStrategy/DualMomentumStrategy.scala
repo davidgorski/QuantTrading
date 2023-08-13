@@ -32,7 +32,7 @@ case class DualMomentumStrategyState(
 case class DualMomentumStrategy(
   override val params: DualMomentumStrategyParams,
   override val state: DualMomentumStrategyState
-) extends Strategy[DualMomentumStrategy, DualMomentumStrategyParams, DualMomentumStrategyState] {
+) extends Strategy[DualMomentumStrategyParams, DualMomentumStrategyState] {
 
   override def onData(ohlcBySymbol: ImmutableMap[Symbol, OhlcvBase]): DualMomentumStrategy = {
     val emaBySymbolNewMut: MutableMap[Symbol, Ema] = MutableMap[Symbol, Ema]()

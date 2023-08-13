@@ -33,7 +33,7 @@ case class XassetStrategyState(
 case class XassetStrategy(
   override val params: XassetStrategyParams,
   override val state: XassetStrategyState
-) extends Strategy[XassetStrategy, XassetStrategyParams, XassetStrategyState] {
+) extends Strategy[XassetStrategyParams, XassetStrategyState] {
 
   override def onData(ohlcBySymbol: ImmutableMap[Symbol, OhlcvBase]): XassetStrategy = {
     val date = ohlcBySymbol.values.head.date

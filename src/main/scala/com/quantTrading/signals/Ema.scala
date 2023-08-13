@@ -13,7 +13,7 @@ case class EmaState(valueMaybe: Option[Double] = None) extends StateBase
 case class Ema(
   params: EmaParams,
   state: EmaState = EmaState(),
-) extends BacktestIterator[Double, Option[Double], Ema, EmaParams, EmaState] {
+) extends BacktestIterator[Double, Option[Double], EmaParams, EmaState] {
 
   override def onData(input: Double): Ema = {
     val emaStateNew: EmaState = {

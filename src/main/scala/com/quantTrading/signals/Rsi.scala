@@ -12,7 +12,7 @@ case class RsiState(emaUp: Ema, emaDn: Ema) extends StateBase
 case class Rsi(
   params: RsiParams,
   state: RsiState
-) extends BacktestIterator[Double, Option[Double], Rsi, RsiParams, RsiState] {
+) extends BacktestIterator[Double, Option[Double], RsiParams, RsiState] {
 
   override def onData(r1: Double): Rsi = {
     val emaUpNew = state.emaUp.onData(math.max(0.0, r1))

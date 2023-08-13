@@ -75,6 +75,9 @@ trait StrategyState extends StateBase {
     val startDate: LocalDate = pnlByDate.keys.minBy(_.toEpochDay)
     val endDate: LocalDate = pnlByDate.keys.maxBy(_.toEpochDay)
 
+    val notionalBySymbolTday: ImmutableMap[Symbol, SidedNotional] = ???
+    val notionalBySymbolYday: ImmutableMap[Symbol, SidedNotional] = ???
+
     val strategyPerformance = StrategyResult(
       pnlByDate,
       sharpe,
@@ -83,7 +86,9 @@ trait StrategyState extends StateBase {
       pnlPerYear,
       annualizedVol,
       startDate,
-      endDate
+      endDate,
+      notionalBySymbolTday,
+      notionalBySymbolYday
     )
 
     strategyPerformance

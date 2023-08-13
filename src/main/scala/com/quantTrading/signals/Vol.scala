@@ -16,7 +16,7 @@ case class VolState(
 case class Vol(
   params: VolParams,
   state: VolState,
-) extends BacktestIterator[OhlcvBase, Option[Double], Vol, VolParams, VolState] {
+) extends BacktestIterator[OhlcvBase, Option[Double], VolParams, VolState] {
 
   override def onData(ohlcv: OhlcvBase): Vol = {
     val ret1New = this.state.ret1.onData(ohlcv)

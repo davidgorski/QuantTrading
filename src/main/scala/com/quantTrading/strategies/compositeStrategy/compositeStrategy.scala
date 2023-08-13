@@ -11,7 +11,7 @@ import scala.collection.mutable.{Map => MutableMap}
 
 case class CompositeStrategyParams(
   override val name: String,
-  strategyList: List[Strategy[_, StrategyParamsBase, StrategyState]],
+  strategyList: List[Strategy[StrategyParamsBase, StrategyState]],
   override val scaling: PosDouble,
 ) extends StrategyParamsBase {
 
@@ -19,7 +19,7 @@ case class CompositeStrategyParams(
 
 
 case class CompositeStrategyState(
-  strategyList: List[Strategy[_, StrategyParamsBase, StrategyState]],
+  strategyList: List[Strategy[StrategyParamsBase, StrategyState]],
   scaling: PosDouble,
   qtyBySymbolByDateSetOnce: SetOnce[QtyBySymbolByDate]
 ) extends StrategyState {
@@ -27,7 +27,7 @@ case class CompositeStrategyState(
   private def qtyBySymbolByDateSetter(): Unit = {
     val resultMutable = MutableMap[LocalDate, MutableMap[Symbol, SidedQuantity]]()
 
-    strategyList.foreach { (strategy: Strategy[_, StrategyParamsBase, StrategyState]) =>
+    strategyList.foreach { (strategy: Strategy[StrategyParamsBase, StrategyState]) =>
 
       strategy.state.qtyBySymbolByDate.qtyBySymbolByDate.foreach { dateToSymbolMap =>
         val date: LocalDate = dateToSymbolMap._1
@@ -67,14 +67,14 @@ case class CompositeStrategyState(
 case class CompositeStrategy(
   override val params: CompositeStrategyParams,
   override val state: CompositeStrategyState
-) extends Strategy[CompositeStrategy, CompositeStrategyParams, CompositeStrategyState] {
+) extends Strategy[CompositeStrategyParams, CompositeStrategyState] {
 
   override def onData(ohlcBySymbol: ImmutableMap[Symbol, OhlcvBase]): CompositeStrategy = {
-    val strategyListNew: List[Strategy[_, StrategyParamsBase, StrategyState]] =
+    val strategyListNew: List[Strategy[StrategyParamsBase, StrategyState]] =
       state
         .strategyList
         .map(_.onData(ohlcBySymbol))
-        .collect { case s: Strategy[_, StrategyParamsBase, StrategyState] => s }
+        .collect { case s: Strategy[StrategyParamsBase, StrategyState] => s }
 
       CompositeStrategy(this.params, this.state.copy(strategyListNew))
   }

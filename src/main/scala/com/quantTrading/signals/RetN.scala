@@ -13,7 +13,7 @@ case class RetNState(
 case class RetN(
   params: RetNParams,
   state: RetNState = RetNState(),
-) extends BacktestIterator[OhlcvBase, Option[Double], RetN, RetNParams, RetNState] {
+) extends BacktestIterator[OhlcvBase, Option[Double], RetNParams, RetNState] {
 
   override def valueMaybe: Option[Double] = {
     if (state.priorValues.size >= params.lookback.value + 1) {
