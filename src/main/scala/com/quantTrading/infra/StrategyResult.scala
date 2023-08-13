@@ -1,8 +1,10 @@
 package com.quantTrading.infra
 
+import com.quantTrading.symbols.Symbol
 import org.mongodb.scala.bson.ObjectId
 import org.scalactic.anyvals.PosZDouble
-import scala.collection.immutable.{SortedMap => ImmutableSortedMap, Map => ImmutableMap}
+
+import scala.collection.immutable.{Map => ImmutableMap, SortedMap => ImmutableSortedMap}
 import java.time.LocalDate
 
 case class StrategyResultSerializable(
@@ -14,7 +16,9 @@ case class StrategyResultSerializable(
   pnlPerYear: Double,
   annualizedVol: Double,
   startDate: LocalDate,
-  endDate: LocalDate
+  endDate: LocalDate,
+  notionalBySymbolTday: ImmutableMap[String, Double],
+  notionalBySymbolYday: ImmutableMap[String, Double]
 )
 object StrategyResultSerializable {
   def apply(strategyResult: StrategyResult): StrategyResultSerializable = {
@@ -27,7 +31,9 @@ object StrategyResultSerializable {
       strategyResult.pnlPerYear,
       strategyResult.annualizedVol,
       strategyResult.startDate,
-      strategyResult.endDate
+      strategyResult.endDate,
+      ImmutableMap(strategyResult.notionalBySymbolTday.map(kv => (kv._1.toString, kv._2.toSignedDouble)).toArray:_*),
+      ImmutableMap(strategyResult.notionalBySymbolYday.map(kv => (kv._1.toString, kv._2.toSignedDouble)).toArray:_*)
     )
   }
 }
@@ -40,7 +46,9 @@ case class StrategyResult(
   pnlPerYear: Double,
   annualizedVol: Double,
   startDate: LocalDate,
-  endDate: LocalDate
+  endDate: LocalDate,
+  notionalBySymbolTday: ImmutableMap[Symbol, SidedNotional],
+  notionalBySymbolYday: ImmutableMap[Symbol, SidedNotional]
 ) {
   override def toString: String = {
     List[String](
@@ -57,9 +65,22 @@ case class StrategyResult(
 }
 object StrategyResult {
   def apply(strategyResultSerializable: StrategyResultSerializable): StrategyResult = {
+
     val pnlSortedMap = ImmutableSortedMap[LocalDate, Double](
       strategyResultSerializable.pnlByDateStringType.map(kv => (LocalDate.parse(kv._1) -> kv._2)).toArray:_*
     )(Ordering.by(_.toEpochDay))
+
+    val notionalBySymbolTday = ImmutableMap[Symbol, SidedNotional](
+      strategyResultSerializable.notionalBySymbolTday.map(kv =>
+        (Symbol.fromString(kv._1) -> SidedNotional(kv._2))
+      ).toArray: _*
+    )
+
+    val notionalBySymbolYday = ImmutableMap[Symbol, SidedNotional](
+      strategyResultSerializable.notionalBySymbolYday.map(kv =>
+        (Symbol.fromString(kv._1) -> SidedNotional(kv._2))
+      ).toArray: _*
+    )
 
     StrategyResult(
       pnlSortedMap,
@@ -69,7 +90,9 @@ object StrategyResult {
       strategyResultSerializable.pnlPerYear,
       strategyResultSerializable.annualizedVol,
       strategyResultSerializable.startDate,
-      strategyResultSerializable.endDate
+      strategyResultSerializable.endDate,
+      notionalBySymbolTday,
+      notionalBySymbolYday
     )
   }
 }

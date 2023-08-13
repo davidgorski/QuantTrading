@@ -18,7 +18,7 @@ case class SidedQuantity(qty: PosZDouble, side: Side) {
     SidedQuantity(PosZDouble.from(this.qtySigned * scalar.value).get, this.side)
   }
 
-  def qtySigned: Double = {
+  private def qtySigned: Double = {
     this.side match {
       case SideBuy => qty.value
       case SideSell => -1 * qty.value
