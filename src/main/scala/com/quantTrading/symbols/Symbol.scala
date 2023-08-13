@@ -37,12 +37,12 @@ object Symbol {
     LQD
   )
 
-  def fromString(symbolString: String): Validation[String, Symbol] = {
+  def fromString(symbolString: String): Symbol = {
     for (symbol <- symbols) {
       if (symbol.symbol.equalsIgnoreCase(symbol.symbol))
-        return Success(symbol)
+        return symbol
     }
-    Failure(s"No symbols found for $symbolString")
+    throw new RuntimeException(s"Could not construct Symbol from $symbolString")
   }
 }
 
