@@ -1,7 +1,7 @@
 ##############################################################################
 # Setup Stage: install apps
 #
-# This is a dedicated stage so that donwload archives don't end up on
+# This is a dedicated stage so that download archives don't end up on
 # production image and consume unnecessary space.
 ##############################################################################
 
@@ -80,26 +80,10 @@ RUN apt-get update -y && \
   ;fi && \
   groupadd --gid ${USER_GID} ibgateway && \
   useradd -ms /bin/bash --uid ${USER_ID} --gid ${USER_GID} ibgateway && \
-  chmod a+x ${SCRIPT_PATH}/*.sh && \
-  apt-get update && \
-  apt-get install -y python3 python3-pip curl unzip jq dos2unix && \
-  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-  unzip awscliv2.zip && \
-  ./aws/install && \
-  rm -rf awscliv2.zip aws && \
-  rm -rf /var/lib/apt/lists/*
+  chmod a+x ${SCRIPT_PATH}/*.sh
 
 USER ${USER_ID}:${USER_GID}
 WORKDIR ${HOME}
-
-# deal with windows encodings and line endings
-RUN dos2unix "/home/ibgateway/scripts/common.sh" && \
-  dos2unix "/home/ibgateway/scripts/port_forwarding.sh" && \
-  dos2unix "/home/ibgateway/scripts/run.sh" && \
-  dos2unix "/home/ibgateway/scripts/run_socat.sh" && \
-  dos2unix "/home/ibgateway/scripts/run_ssh.sh" && \
-  dos2unix "/home/ibgateway/scripts/secrets.sh" && \
-  dos2unix "/home/ibgateway/scripts/run_x11_vnc.sh"
 
 # Start run script
 CMD ["/home/ibgateway/scripts/run.sh"]
