@@ -5,6 +5,8 @@
 set -Eeo pipefail
 
 echo "*************************************************************************"
+echo ".> User: $(whoami) | UID: $UID | GID: $(id -g)"
+echo "*************************************************************************"
 echo ".> Starting IBC/IB gateway"
 echo "*************************************************************************"
 
@@ -66,7 +68,6 @@ start_vnc() {
 }
 
 start_IBC() {
-  echo "User: $(whoami) | UID: $UID | GID: $(id -g)"
 	echo ".> Starting IBC in ${TRADING_MODE} mode, with params:"
 	echo ".>		Version: ${TWS_MAJOR_VRSN}"
 	echo ".>		program: ${IBC_COMMAND:-gateway}"
