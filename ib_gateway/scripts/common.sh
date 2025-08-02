@@ -4,7 +4,7 @@
 apply_settings() {
 	# apply env variables into IBC and gateway/TWS config files
 	if [ "$CUSTOM_CONFIG" != "yes" ]; then
-		echo ".> Appling settings to IBC's config.ini"
+		echo ".> Applying settings to IBC's config.ini"
 
 		file_env 'TWS_PASSWORD'
 		# replace env variables
