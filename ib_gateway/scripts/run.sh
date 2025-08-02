@@ -9,7 +9,6 @@ echo ".> Starting IBC/IB gateway"
 echo "*************************************************************************"
 
 # shellcheck disable=SC1091
-source "${SCRIPT_PATH}/secrets.sh"
 source "${SCRIPT_PATH}/common.sh"
 
 stop_ibc() {
