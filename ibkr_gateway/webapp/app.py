@@ -5,7 +5,7 @@ from flask import Flask, render_template, request, redirect
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-BASE_API_URL = "https://ibkr-gateway-tmp.onrender.com"
+BASE_API_URL = "https://localhost:5055/v1/api"
 ACCOUNT_ID = os.environ['IBKR_ACCOUNT_ID']
 
 os.environ['PYTHONHTTPSVERIFY'] = '0'
@@ -23,7 +23,7 @@ def dashboard():
         r = requests.get(f"{BASE_API_URL}/portfolio/accounts", verify=False)
         accounts = r.json()
     except Exception as e:
-        return "Make sure you authenticate first then visit this page. <a href='{BASE_API_URL}:5055'>Log in</a>"
+        return 'Make sure you authenticate first then visit this page. <a href="https://localhost:5055">Log in</a>'
 
     account = accounts[0]
 
