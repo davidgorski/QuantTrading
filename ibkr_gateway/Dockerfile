@@ -20,9 +20,6 @@ RUN mkdir gateway && \
 COPY conf.yaml gateway/root/conf.yaml
 COPY start.sh /app
 
-ADD webapp webapp
-ADD scripts scripts
-
 # Commented out for now, some commands that are helpful if you want to install your own SSL certificate
 # RUN keytool -genkey -keyalg RSA -alias selfsigned -keystore cacert.jks -storepass abc123 -validity 730 -keysize 2048 -dname CN=localhost
 # RUN keytool -importkeystore -srckeystore cacert.jks -destkeystore cacert.p12 -srcstoretype jks -deststoretype pkcs12 -srcstorepass abc123 -deststorepass abc123
