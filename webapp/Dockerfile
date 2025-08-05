@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim
+FROM python:3.10-slim
 
 # Update and upgrade packages
 RUN apt-get update && apt-get upgrade -y
@@ -13,4 +13,4 @@ COPY start.sh /webapp
 COPY app.py /webapp
 
 # Run the gateway
-CMD sh ./start.sh
+CMD ["gunicorn", "--bind", "0.0.0.0:5056", "run:app"]
