@@ -1,1 +1,0 @@
-cd gateway && sh bin/run.sh root/conf.yaml

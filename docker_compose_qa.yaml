@@ -1,11 +1,21 @@
 services:
 
-  ibkr_gateway:
+  ib-gateway:
     restart: always
     build:
-      context: ./ibkr_gateway
+      context: ./ib_gateway
+    environment:
+      - TRADING_MODE=paper
+      - READ_ONLY_API=no
+      # - VNC_SERVER_PASSWORD=abc123
+      - TWOFA_TIMEOUT_ACTION=restart
+      - AUTO_RESTART_TIME="01:00 AM"
+      - RELOGIN_AFTER_2FA_TIMEOUT=yes
+      - TIME_ZONE="America/New_York"
     networks:
       - trader
+    # ports:
+    #   - "5900:5900"  # for vnc
 
   webapp:
     build:
