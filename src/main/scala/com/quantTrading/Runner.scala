@@ -11,7 +11,7 @@ import scalaz.{Failure, Success, Validation}
 import java.time.{LocalDate, ZonedDateTime}
 import scala.collection.immutable.SortedMap
 import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
-import scala.concurrent.duration.{Duration, FiniteDuration, MILLISECONDS}
+import scala.concurrent.duration.Duration
 import scala.collection.immutable.{Map => ImmutableMap}
 import scala.collection.mutable.{Map => MutableMap}
 
@@ -114,4 +114,18 @@ object Runner {
       val runResult: ImmutableMap[String, StrategyResultSerializable] = runStrategies()
     }
   }
+
+  /**
+   * If you're in dev, then return the -1b
+   */
+    /*
+  private def now(): ZonedDateTime = {
+    if (Settings.IS_PROD) {
+      ZonedDateTime.now(Settings.TIMEZONE)
+    } else {
+
+    }
+  }
+
+     */
 }
