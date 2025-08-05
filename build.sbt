@@ -40,4 +40,10 @@ libraryDependencies ++= Seq(
 
   // plotting
   "org.plotly-scala" %% "plotly-render" % "0.8.1",
+
+  // lombok java classes
+  "org.projectlombok" % "lombok" % "1.18.32" % Provided
 )
+
+// add IBKR api
+Compile / unmanagedJars += baseDirectory.value / "lib" / "TwsApi.jar"
