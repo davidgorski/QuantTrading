@@ -1,0 +1,11 @@
+services:
+
+  ibkr_gateway:
+    restart: always
+    build:
+      context: ./ibkr_gateway
+    networks:
+      - trader
+
+networks:
+  trader:
