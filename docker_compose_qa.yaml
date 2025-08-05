@@ -7,5 +7,13 @@ services:
     networks:
       - trader
 
+  webapp:
+    build:
+      context: ./webapp
+    ports:
+      - "5056:5056"
+    networks:
+      - trader
+
 networks:
   trader:
