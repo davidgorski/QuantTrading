@@ -1,19 +1,15 @@
 services:
 
   ibkr_gateway:
-    restart: always
     build:
       context: ./ibkr_gateway
-    networks:
-      - trader
-
-  webapp:
-    build:
-      context: ./webapp
     ports:
+      - "5055:5055"
       - "5056:5056"
     networks:
       - trader
+    environment:
+      IBKR_ACCOUNT_ID: "U1234567"
 
 networks:
   trader:
