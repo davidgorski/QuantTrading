@@ -7,11 +7,10 @@ RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y python3 python3-pip python3.11-venv
 
 # We will put everything in the /app directory
-WORKDIR /app
+WORKDIR /webapp
 
-COPY start.sh /app
-
-ADD webapp webapp
+COPY start.sh /webapp
+COPY app.py /webapp
 
 # Run the gateway
 CMD sh ./start.sh
