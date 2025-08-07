@@ -1,19 +1,5 @@
-FROM nginx:stable
+FROM debian:bookworm-slim
 
-# do the NGINX stuff
-ARG CERTBOT_EMAIL
-ARG DOMAIN_LIST
-
-RUN apt-get update && apt-get -y install certbot cron wget bash python3-certbot-nginx
-RUN certbot certonly --standalone --agree-tos -m "${CERTBOT_EMAIL}" -n -d ${DOMAIN_LIST}
-RUN rm -rf /var/lib/apt/lists/*
-RUN echo "PATH=$PATH" > /etc/cron.d/certbot-renew
-RUN echo "@daily certbot renew --nginx >> /var/log/cron.log 2>&1" >>/etc/cron.d/certbot-renew
-RUN crontab /etc/cron.d/certbot-renew
-
-VOLUME /etc/letsencrypt
-
-# now do the gateway stuff
 # Update and upgrade packages
 RUN apt-get update && apt-get upgrade -y
 
@@ -36,16 +22,8 @@ COPY start.sh /app
 
 ADD webapp webapp
 
-# Commented out for now, some commands that are helpful if you want to install your own SSL certificate
-# RUN keytool -genkey -keyalg RSA -alias selfsigned -keystore cacert.jks -storepass abc123 -validity 730 -keysize 2048 -dname CN=localhost
-# RUN keytool -importkeystore -srckeystore cacert.jks -destkeystore cacert.p12 -srcstoretype jks -deststoretype pkcs12 -srcstorepass abc123 -deststorepass abc123
-# RUN openssl pkcs12 -in cacert.p12 -out cacert.pem -passin pass:abc123 -passout pass:abc123
-# RUN cp cacert.pem gateway/root/cacert.pem
-# RUN cp cacert.jks gateway/root/cacert.jks
-# RUN cp cacert.pem webapp/cacert.pem
-
 # Expose the port so we can connect
-# EXPOSE 5055 5056
+EXPOSE 5055 5056
 
 # Run the gateway
 CMD sh ./start.sh

@@ -3,21 +3,30 @@ services:
   ibkr_gateway:
     build:
       context: ./ibkr_gateway
+    ports:
+      - "5055:5055"
+      - "5056:5056"
+    networks:
+      - trader
+    environment:
+      IBKR_ACCOUNT_ID: "U1234567"
+
+  nginx:
+    build:
+      context: ./nginx
       network: host
       args:
         - CERTBOT_EMAIL=david.a.gorski@gmail.com
         - DOMAIN_LIST=qa-dg-quant-trader.com
     restart: always
-    ports:
-      - "5055:5055"
-      - "5056:5056"
-      - "80:80"
-      - "443:443"
-    environment:
-      IBKR_ACCOUNT_ID: "U1234567"
+    depends_on:
+      - ibkr_gateway
     volumes:
       - ./nginx/default_qa.conf:/etc/nginx/conf.d/default.conf
       - letsencrypt:/etc/letsencrypt
+    ports:
+      - "80:80"
+      - "443:443"
     networks:
       - trader
 
