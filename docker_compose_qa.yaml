@@ -14,6 +14,7 @@ services:
   nginx:
     build:
       context: ./nginx
+      network: host
       args:
         - CERTBOT_EMAIL=david.a.gorski@gmail.com
         - DOMAIN_LIST=qa-dg-quant-trader.com
