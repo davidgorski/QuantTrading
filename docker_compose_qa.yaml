@@ -11,26 +11,26 @@ services:
     environment:
       IBKR_ACCOUNT_ID: "U1234567"
 
-  nginx:
-    build:
-      context: ./nginx
-      args:
-        - CERTBOT_EMAIL=david.a.gorski@gmail.com
-        - DOMAIN_LIST=qa-dg-quant-trader.com
+  nginx_proxy_manager:
+    image: 'jc21/nginx-proxy-manager:latest'
     restart: always
-    depends_on:
-      - ibkr_gateway
-    volumes:
-      - ./nginx/default_qa.conf:/etc/nginx/conf.d/default.conf
-      - letsencrypt:/etc/letsencrypt
     ports:
-      - "80:80"
-      - "443:443"
+      - "80:80"    # HTTP
+      - "81:81"    # Admin UI
+      - "443:443"  # HTTPS
+    environment:
+      DB_SQLITE_FILE: "/data/database.sqlite"
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
     networks:
       - trader
+    depends_on:
+      - ibkr_gateway
 
 volumes:
-  letsencrypt:
+  npm_data:
+  npm_letsencrypt:
 
 networks:
   trader:
