@@ -31,9 +31,9 @@ services:
   nginx:
     build:
       context: ./nginx
-      args:
-        - CERTBOT_EMAIL=david.a.gorski@gmail.com
-        - DOMAIN_LIST=qa-dg-quant-trader.com
+    environment:
+      CERTBOT_EMAIL=david.a.gorski@gmail.com
+      DOMAIN_LIST=qa-dg-quant-trader.com
     restart: always
     depends_on:
       - ibkr_gateway
