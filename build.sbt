@@ -9,7 +9,9 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.7" % Test,
 
   // akka streams
-  "com.typesafe.akka" %% "akka-stream" % "2.5.32",
+  "com.typesafe.akka" %% "akka-stream" % "2.6.21",
+  "com.typesafe.akka" %% "akka-actor" % "2.6.21",
+  "com.typesafe" %% "ssl-config-core" % "0.6.1",
 
   // akka http
   "com.typesafe.akka" %% "akka-http" % "10.1.11",
