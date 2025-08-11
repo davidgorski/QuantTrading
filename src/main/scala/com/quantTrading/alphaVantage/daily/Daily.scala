@@ -13,6 +13,7 @@ import org.scalactic.anyvals.{PosDouble, PosZDouble, PosZInt}
 import scalaz.Validation
 import ujson.Value.Value
 
+import java.time.format.DateTimeFormatter
 import java.time.{Instant, LocalDate}
 import scala.collection.immutable.{Map => ImmutableMap}
 import java.util.concurrent.TimeUnit
@@ -79,10 +80,11 @@ object Daily {
     val uriBase: String = "https://www.alphavantage.co/query"
     val uriParams: ImmutableMap[String, String] = ImmutableMap[String, String](
       "function" -> "TIME_SERIES_DAILY_ADJUSTED",
-      "symbol" -> symbol.symbol,
+      "symbol" -> symbol.alphaVantage,
       "apikey" -> Settings.ALPHAVANTAGE_API_KEY,
       "outputsize" -> "full",
       "datatype" -> "json",
+      "entitlement" -> "realtime"
     )
     val uri: Uri = Uri(uriBase).withQuery(Uri.Query(uriParams))
     val apiResponseMaybe = queryApiInner(uri, symbol, nRetries)
@@ -146,14 +148,15 @@ object Daily {
       val json: Value = ujson.read(s)
       json.obj.get("Time Series (Daily)") match {
         case None =>
-          scalaz.Failure("Time Series (Daily)")
+          scalaz.Failure("Time Series (Daily) not found in json")
         case Some(values) =>
           val dailyOhlcvBars: List[DailyOhlcv] =
             values.obj.map { kv =>
               val k: String = kv._1
               val v: Value = kv._2
               val adjRatio = extractDouble(v, "5. adjusted close") / extractDouble(v, "4. close")
-              val date: LocalDate = LocalDate.parse(k)
+              val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+              val date: LocalDate = LocalDate.parse(k, formatter)
               // round when adjusting so we don't have pesky floating point precision issues
               val open: PosDouble = PosDouble.from(Utils.round(adjRatio * extractDouble(v, "1. open"), 4)).get
               val high: PosDouble = PosDouble.from(Utils.round(adjRatio * extractDouble(v, "2. high"), 4)).get
