@@ -2,12 +2,9 @@ package com.quantTrading.infra
 
 import com.quantTrading.symbols.Symbol
 import org.scalactic.anyvals.{PosDouble, PosZDouble}
-
 import java.time.LocalDate
 
 
-
-@SerialVersionUID(0L)
 trait OhlcvBase {
 
   def date: LocalDate
