@@ -1,8 +1,0 @@
-import pandas_market_calendars as mcal
-nyse = mcal.get_calendar('NYSE')
-sessions_df = nyse.schedule(start_date="1990-01-01", end_date="2028-12-31")
-sessions_df['market_open'] = sessions_df['market_open'].dt.tz_convert('America/New_York')
-sessions_df['market_close'] = sessions_df['market_close'].dt.tz_convert('America/New_York')
-with open("shopping_memo.csv", "w") as f:
-    for index, row in sessions_df.iterrows():
-        f.write(str(row["market_open"]) + "," + str(row["market_close"]) + "\n")
