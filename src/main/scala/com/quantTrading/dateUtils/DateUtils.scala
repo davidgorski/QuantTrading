@@ -1,23 +1,17 @@
 package com.quantTrading.dateUtils
 
 import com.quantTrading.Settings
-
+import com.typesafe.scalalogging.StrictLogging
 import java.time.{LocalDate, ZonedDateTime}
 import java.time.format.DateTimeFormatter
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.{Map => MutableMap}
+import scala.io.Source
+import spray.json._
+import DefaultJsonProtocol._
 
-object DateUtils {
 
-  case class MarketTimes(open: ZonedDateTime, close: ZonedDateTime) {
-    require(open.toLocalDate.isEqual(close.toLocalDate))
-    require(close.isAfter(open))
-  }
-
-  case class MarketCalendar(sortedMap: SortedMap[LocalDate, MarketTimes]) {
-
-    def getTradingDates: List[LocalDate] = sortedMap.keys.toList
-  }
+object DateUtils extends StrictLogging {
 
   def addBizdays(date: LocalDate, nBizDays: Int, marketCalendar: MarketCalendar): LocalDate = {
     val busdays = marketCalendar.getTradingDates
@@ -49,18 +43,25 @@ object DateUtils {
     }
   }
 
-  def getNyseCalendar(): MarketCalendar = {
-    val bufferedSource = io.Source.fromFile("src/main/resources/nyse_calendar.csv")
-    val mutMap: MutableMap[LocalDate, MarketTimes] = MutableMap[LocalDate, MarketTimes]()
-    for (line <- bufferedSource.getLines) {
-      val cols = line.split(",").map(_.trim)
-      val zdtOpen = ZonedDateTime.parse(cols(0), DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-      val zdtClose = ZonedDateTime.parse(cols(1), DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-      val marketTimes = MarketTimes(zdtOpen, zdtClose)
-      mutMap += (zdtOpen.toLocalDate -> marketTimes)
-    }
-    bufferedSource.close
-    val sortedMap = SortedMap[LocalDate, MarketTimes](mutMap.toArray:_*)(Ordering.by(_.toEpochDay))
+  def loadNyseCalendar(): MarketCalendar = {
+    val stream = getClass.getResourceAsStream("/nyse_calendar.json")
+    if (stream == null)
+      throw new RuntimeException("Could not get /nyse_calendar.json from the resource stream")
+    val jsonStr = Source.fromInputStream(stream).mkString
+    stream.close()
+
+    val marketTimes: List[MarketTimes] = jsonStr.parseJson.convertTo[List[MarketTimes]]
+    val map: Map[LocalDate, MarketTimes] =
+      marketTimes.map { (marketTime: MarketTimes) =>
+        val dt = marketTime.open.toLocalDate
+        dt -> marketTime
+      }.toMap
+    val sortedMap = SortedMap[LocalDate, MarketTimes](map.toArray:_*)(Ordering.by(_.toEpochDay))
     MarketCalendar(sortedMap)
+  }
+
+  def main(args: Array[String]): Unit = {
+    val x = loadNyseCalendar()
+    val y = 1
   }
 }
