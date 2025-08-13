@@ -2,18 +2,16 @@ package com.quantTrading.alphaVantage.daily
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Keep, RunnableGraph, Sink}
 import com.quantTrading.symbols.Symbol
 import org.scalactic.anyvals.PosZInt
-
 import java.time.{LocalDateTime, ZoneId}
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
 
 
-object Example {
+object ExampleDaily {
 
   def main(args: Array[String]): Unit = {
 
