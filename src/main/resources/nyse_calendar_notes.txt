@@ -1,0 +1,11 @@
+import pandas_market_calendars as mcal
+
+nyse = mcal.get_calendar('NYSE')
+
+sessions_df = nyse.schedule(start_date="1990-01-01", end_date="2028-12-31")
+sessions_df = sessions_df.rename(columns={"market_open": "open", "market_close": "close"})
+sessions_df['open'] = sessions_df['open'].dt.tz_convert('America/New_York')
+sessions_df['close'] = sessions_df['close'].dt.tz_convert('America/New_York')
+sessions_df['open'] = sessions_df['open'].dt.strftime('%Y-%m-%dT%H:%M:%S%z').str.replace(r"(\d{2})(\d{2})$", r"\1:\2", regex=True) + "[" + sessions_df['open'].dt.tz.zone + "]"
+sessions_df['close'] = sessions_df['close'].dt.strftime('%Y-%m-%dT%H:%M:%S%z').str.replace(r"(\d{2})(\d{2})$", r"\1:\2", regex=True) + "[" + sessions_df['close'].dt.tz.zone + "]"
+sessions_df.to_json('nyse_calendar.json', orient="records")
