@@ -37,14 +37,19 @@ libraryDependencies ++= Seq(
   "org.reactivemongo" %% "reactivemongo" % "1.0.10",
 
   // logging
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4",
-  "org.slf4j" % "slf4j-simple" % "2.0.5",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
+  "org.slf4j" % "slf4j-api" % "2.0.17",
 
   // plotting
   "org.plotly-scala" %% "plotly-render" % "0.8.1",
 
-  // lombok java classes
-  "org.projectlombok" % "lombok" % "1.18.32" % Provided
+  // aws s3
+  "software.amazon.awssdk" % "s3" % "2.32.20",
+  "software.amazon.awssdk" % "auth" % "2.32.20",
+  "software.amazon.awssdk" % "secretsmanager" % "2.32.21",
+
+  // spray json
+  "io.spray" %% "spray-json" % "1.3.6",
 )
 
 // add IBKR api
