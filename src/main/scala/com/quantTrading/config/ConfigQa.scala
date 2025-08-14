@@ -13,7 +13,7 @@ case class ConfigQa() extends Config {
 
   override val awsSecretName: String = "qa/quant_trader"
 
-  override val awsSecrets: Map[String, String] = Secrets.loadSecrets(awsRegion, awsSecretName)
+  override val awsSecrets: Secrets = Secrets.loadSecrets(awsRegion, awsSecretName)
 
   override val zoneId: ZoneId = ZoneId.of("America/New_York")
 

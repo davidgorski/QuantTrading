@@ -11,7 +11,7 @@ object SprayJsonProtocol {
   implicit val posZDoubleFormat: JsonFormat[PosZDouble] = new JsonFormat[PosZDouble] {
 
     override def read(json: JsValue): PosZDouble = json match {
-      case JsNumber(value) => PosZDouble.from(value.doubleValue()).get
+      case JsNumber(value) => PosZDouble.from(value.doubleValue).get
       case other => deserializationError(s"Expected PosZDouble as JsNumber, got $other")
     }
 
@@ -33,7 +33,7 @@ object SprayJsonProtocol {
   implicit val posDoubleFormat: JsonFormat[PosDouble] = new JsonFormat[PosDouble] {
 
     override def read(json: JsValue): PosDouble = json match {
-      case JsNumber(value) => PosDouble.from(value.doubleValue()).get
+      case JsNumber(value) => PosDouble.from(value.doubleValue).get
       case other => deserializationError(s"Expected PosDouble as JsNumber, got $other")
     }
 

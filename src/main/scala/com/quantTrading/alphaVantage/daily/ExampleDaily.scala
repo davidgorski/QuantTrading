@@ -3,6 +3,7 @@ package com.quantTrading.alphaVantage.daily
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.{Flow, Keep, RunnableGraph, Sink, Source}
+import com.quantTrading.config.ConfigQa
 import com.quantTrading.symbols.Symbol
 import org.scalactic.anyvals.PosZInt
 import scalaz.Validation
@@ -23,6 +24,7 @@ object ExampleDaily {
     val symbols = Symbol.symbols
     val nRetries = PosZInt(3)
     val zoneId = ZoneId.of("America/New_York")
+    val config = ConfigQa()
 
     val tick: Source[Instant, NotUsed] =
       Source
@@ -31,7 +33,7 @@ object ExampleDaily {
         .mapMaterializedValue(_ => NotUsed)
 
     val queryFlow: Flow[Instant, Validation[String, List[DailyOhlcv]], NotUsed] =
-      Daily.getFlow(symbols, nRetries)
+      Daily.getFlow(symbols, config, nRetries)
 
     val graph: RunnableGraph[NotUsed] =
       tick

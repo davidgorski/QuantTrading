@@ -7,7 +7,8 @@ import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse, StatusC
 import akka.stream.Materializer
 import akka.stream.scaladsl.Flow
 import akka.util.ByteString
-import com.quantTrading.{Settings, Utils}
+import com.quantTrading.Utils
+import com.quantTrading.config.Config
 import com.quantTrading.symbols.Symbol
 import org.scalactic.anyvals.{PosDouble, PosZDouble, PosZInt}
 import scalaz.Validation
@@ -22,6 +23,7 @@ object Daily {
 
   def getFlow(
     symbols: List[Symbol],
+    config: Config,
     nRetries: PosZInt
   )(
     implicit
@@ -33,7 +35,7 @@ object Daily {
     val queryFlow: Flow[Instant, List[Validation[String, List[DailyOhlcv]]], NotUsed] =
       Flow[Instant]
         .mapAsyncUnordered(10) { _ =>
-          Future.traverse(symbols)(symbol => queryApi(symbol, nRetries))
+          Future.traverse(symbols)(symbol => queryApi(symbol, nRetries, config))
         }
 
     val queryCollectFlow: Flow[List[Validation[String, List[DailyOhlcv]]], Validation[String, List[DailyOhlcv]], NotUsed] =
@@ -62,6 +64,7 @@ object Daily {
   private def queryApi(
     symbol: Symbol,
     nRetries: PosZInt,
+    config: Config,
   )(
     implicit
     actorSystem: ActorSystem,
@@ -73,7 +76,7 @@ object Daily {
     val uriParams: ImmutableMap[String, String] = ImmutableMap[String, String](
       "function" -> "TIME_SERIES_DAILY_ADJUSTED",
       "symbol" -> symbol.alphaVantage,
-      "apikey" -> Settings.ALPHAVANTAGE_API_KEY,
+      "apikey" -> config.awsSecrets.alphaVantageApiKey,
       "outputsize" -> "full",
       "datatype" -> "json",
       "entitlement" -> "realtime"

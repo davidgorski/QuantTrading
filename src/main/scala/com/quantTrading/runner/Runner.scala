@@ -29,7 +29,6 @@ object Runner {
         .map(_ => Instant.now(config.clock))
         .mapMaterializedValue(_ => NotUsed)
 
-    val intradayOhlcv
 
 
 

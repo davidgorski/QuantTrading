@@ -5,7 +5,7 @@ import akka.http.scaladsl.model._
 import com.quantTrading.aws.S3
 import com.quantTrading.config.Config
 import com.quantTrading.symbols.Symbol
-import com.quantTrading.{Settings, Utils}
+import com.quantTrading.Utils
 import com.typesafe.scalalogging.StrictLogging
 import org.scalactic.anyvals.{PosDouble, PosInt, PosZDouble, PosZInt}
 import requests.Response
@@ -13,7 +13,6 @@ import scalaz.Validation
 import ujson.Value.Value
 import spray.json._
 import spray.json.DefaultJsonProtocol._
-
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime, ZoneId, ZonedDateTime}
 import java.util.concurrent.{Executors, TimeUnit}
@@ -115,7 +114,7 @@ object HistoryLoadCache extends StrictLogging {
     val listOfFuturesAlphaVantage: Future[List[(QueryParams, Validation[String, List[IntradayOhlcv]])]] =
       Future.traverse(missingQueryParams) { (queryParams: QueryParams) =>
         Future {
-          val result: Validation[String, List[IntradayOhlcv]] = queryApi(queryParams)
+          val result: Validation[String, List[IntradayOhlcv]] = queryApi(queryParams, config)
           logger.info(s"$queryParams")
           Thread.sleep(sleepTimeMilli)
           (queryParams, result)
@@ -172,12 +171,15 @@ object HistoryLoadCache extends StrictLogging {
     buffer.toSet.toList.sorted
   }
 
-  def queryApi(queryParams: QueryParams): Validation[String, List[IntradayOhlcv]] = {
+  def queryApi(
+    queryParams: QueryParams,
+    config: Config,
+  ): Validation[String, List[IntradayOhlcv]] = {
     val uriBase: String = "https://www.alphavantage.co/query"
     val uriParams: ImmutableMap[String, String] = ImmutableMap[String, String](
       "function" -> "TIME_SERIES_INTRADAY",
       "symbol" -> queryParams.symbol.alphaVantage,
-      "apikey" -> Settings.ALPHAVANTAGE_API_KEY,
+      "apikey" -> config.awsSecrets.alphaVantageApiKey,
       "extended_hours" -> "false",
       "outputsize" -> "full",
       "interval" -> queryParams.minuteBarInterval.toString,

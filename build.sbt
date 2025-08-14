@@ -2,38 +2,39 @@ name := "QuantTrading"
 
 version := "0.1.0"
 
-scalaVersion := "2.12.12"
+scalaVersion := "2.13.16"
 
 libraryDependencies ++= Seq(
   // scala testing
-  "org.scalatest" %% "scalatest" % "3.2.7" % Test,
+  "org.scalatest" %% "scalatest" % "3.2.19" % Test,
 
   // akka streams
   "com.typesafe.akka" %% "akka-stream" % "2.6.21",
   "com.typesafe.akka" %% "akka-actor" % "2.6.21",
+
+  // ssl config
   "com.typesafe" %% "ssl-config-core" % "0.6.1",
 
   // akka http
-  "com.typesafe.akka" %% "akka-http" % "10.1.11",
-  "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.11",
+  "com.typesafe.akka" %% "akka-http" % "10.5.3",
+  "com.typesafe.akka" %% "akka-http-spray-json" % "10.5.3",
 
   // request-scala
-  "com.lihaoyi" %% "requests" % "0.8.0",
+  "com.lihaoyi" %% "requests" % "0.9.0",
 
   // uJson parsing
-  "com.lihaoyi" %% "upickle" % "0.7.1",
+  "com.lihaoyi" %% "upickle" % "4.2.1",
 
   // scalaz (validation)
-  "org.scalaz" %% "scalaz-core" % "7.3.7",
+  "org.scalaz" %% "scalaz-core" % "7.3.8",
 
   // scalactic (posdouble, poslong, etc)
-  "org.scalactic" %% "scalactic" % "3.2.16",
+  "org.scalactic" %% "scalactic" % "3.2.19",
 
   // apache maths
   "org.apache.commons" % "commons-math3" % "3.6.1",
 
   // mongoDB scala driver
-  "org.mongodb.scala" %% "mongo-scala-driver" % "4.10.0",
   "org.reactivemongo" %% "reactivemongo" % "1.0.10",
 
   // logging
@@ -41,12 +42,12 @@ libraryDependencies ++= Seq(
   "org.slf4j" % "slf4j-api" % "2.0.17",
 
   // plotting
-  "org.plotly-scala" %% "plotly-render" % "0.8.1",
+  "org.plotly-scala" %% "plotly-render" % "0.8.5",
 
   // aws s3
-  "software.amazon.awssdk" % "s3" % "2.32.20",
-  "software.amazon.awssdk" % "auth" % "2.32.20",
-  "software.amazon.awssdk" % "secretsmanager" % "2.32.21",
+  "software.amazon.awssdk" % "s3" % "2.32.22",
+  "software.amazon.awssdk" % "auth" % "2.32.22",
+  "software.amazon.awssdk" % "secretsmanager" % "2.32.22",
 
   // spray json
   "io.spray" %% "spray-json" % "1.3.6",

@@ -1,6 +1,8 @@
 package com.quantTrading.config
 
+import com.quantTrading.aws.Secrets
 import software.amazon.awssdk.regions.Region
+
 import java.time.{Clock, ZoneId}
 
 
@@ -12,7 +14,7 @@ trait Config {
 
   def awsSecretName: String
 
-  def awsSecrets: Map[String, String]
+  def awsSecrets: Secrets
 
   def zoneId: ZoneId
 

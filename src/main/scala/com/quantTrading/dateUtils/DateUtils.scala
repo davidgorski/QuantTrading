@@ -1,11 +1,9 @@
 package com.quantTrading.dateUtils
 
-import com.quantTrading.Settings
 import com.typesafe.scalalogging.StrictLogging
-import java.time.{LocalDate, ZonedDateTime}
+import java.time.{LocalDate, ZoneId}
 import java.time.format.DateTimeFormatter
 import scala.collection.immutable.SortedMap
-import scala.collection.mutable.{Map => MutableMap}
 import scala.io.Source
 import spray.json._
 import DefaultJsonProtocol._
@@ -29,8 +27,8 @@ object DateUtils extends StrictLogging {
     busdays(dateIndex + nBizDays)
   }
 
-  def getMostRecentBizdayIncludingToday(marketCalendar: MarketCalendar): LocalDate = {
-    val tday = LocalDate.now(Settings.TIMEZONE)
+  def getMostRecentBizdayIncludingToday(marketCalendar: MarketCalendar, zoneId: ZoneId): LocalDate = {
+    val tday = LocalDate.now(zoneId)
     val tradingDates = marketCalendar.getTradingDates
     if (tradingDates.contains(tday))
       tday
@@ -58,10 +56,5 @@ object DateUtils extends StrictLogging {
       }.toMap
     val sortedMap = SortedMap[LocalDate, MarketTimes](map.toArray:_*)(Ordering.by(_.toEpochDay))
     MarketCalendar(sortedMap)
-  }
-
-  def main(args: Array[String]): Unit = {
-    val x = loadNyseCalendar()
-    val y = 1
   }
 }
