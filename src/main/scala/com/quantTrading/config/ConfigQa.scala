@@ -3,6 +3,8 @@ package com.quantTrading.config
 import com.quantTrading.aws.Secrets
 import software.amazon.awssdk.regions.Region
 
+import java.time.{Clock, ZoneId}
+
 case class ConfigQa() extends Config {
 
   override val awsRegion: Region = Region.US_EAST_1
@@ -13,4 +15,7 @@ case class ConfigQa() extends Config {
 
   override val awsSecrets: Map[String, String] = Secrets.loadSecrets(awsRegion, awsSecretName)
 
+  override val zoneId: ZoneId = ZoneId.of("America/New_York")
+
+  override val clock: Clock =  Clock.system(zoneId)
 }
