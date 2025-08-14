@@ -28,30 +28,30 @@ object Daily {
     actorSystem: ActorSystem,
     materializer: Materializer,
     executionContext: ExecutionContext
-  ): Flow[Instant, Validation[String, List[DailyResponse]], NotUsed] = {
+  ): Flow[Instant, Validation[String, List[DailyOhlcv]], NotUsed] = {
 
-    val queryFlow: Flow[Instant, List[Validation[String, DailyResponse]], NotUsed] =
+    val queryFlow: Flow[Instant, List[Validation[String, List[DailyOhlcv]]], NotUsed] =
       Flow[Instant]
         .mapAsyncUnordered(10) { _ =>
           Future.traverse(symbols)(symbol => queryApi(symbol, nRetries))
         }
 
-    val queryCollectFlow: Flow[List[Validation[String, DailyResponse]], Validation[String, List[DailyResponse]], NotUsed] =
-      Flow[List[Validation[String, DailyResponse]]]
-        .map { (listOfValidations: List[Validation[String, DailyResponse]]) =>
+    val queryCollectFlow: Flow[List[Validation[String, List[DailyOhlcv]]], Validation[String, List[DailyOhlcv]], NotUsed] =
+      Flow[List[Validation[String, List[DailyOhlcv]]]]
+        .map { (listOfValidations: List[Validation[String, List[DailyOhlcv]]]) =>
           val fStrings = listOfValidations.collect { case scalaz.Failure(fStr: String) => fStr }
           if (fStrings.nonEmpty)
             scalaz.Failure(fStrings.mkString("\n"))
           else {
-            val dailyResponses: List[DailyResponse] = listOfValidations.map {
-              case scalaz.Success(dailyResponse: DailyResponse) => dailyResponse
+            val dailyResponses: List[DailyOhlcv] = listOfValidations.flatMap {
+              case scalaz.Success(dailyResponse: List[DailyOhlcv]) => dailyResponse
             }
             scalaz.Success(dailyResponses)
           }
         }
 
-    val flow: Flow[Unit, Validation[String, List[DailyResponse]], NotUsed] =
-      Flow[Unit]
+    val flow: Flow[Instant, Validation[String, List[DailyOhlcv]], NotUsed] =
+      Flow[Instant]
         .via(queryFlow)
         .via(queryCollectFlow)
         .mapMaterializedValue(_ => NotUsed)
@@ -61,13 +61,13 @@ object Daily {
 
   private def queryApi(
     symbol: Symbol,
-    nRetries: PosZInt
+    nRetries: PosZInt,
   )(
     implicit
     actorSystem: ActorSystem,
     materializer: Materializer,
     executionContext: ExecutionContext
-  ): Future[Validation[String, DailyResponse]] = {
+  ): Future[Validation[String, List[DailyOhlcv]]] = {
 
     val uriBase: String = "https://www.alphavantage.co/query"
     val uriParams: ImmutableMap[String, String] = ImmutableMap[String, String](
@@ -86,21 +86,21 @@ object Daily {
   private def queryApiInner(
     uri: Uri,
     symbol: Symbol,
-    nRetries: PosZInt
+    nRetries: PosZInt,
   )(
     implicit
     actorSystem: ActorSystem,
     materializer: Materializer,
     executionContext: ExecutionContext
-  ): Future[Validation[String, DailyResponse]] = {
+  ): Future[Validation[String, List[DailyOhlcv]]] = {
     val httpResponseFut: Future[HttpResponse] = Http().singleRequest(HttpRequest(method = HttpMethods.GET, uri = uri))
     val parsedResponseMaybe =
       httpResponseFut.flatMap { (httpResponse: HttpResponse) =>
         httpResponse.entity.dataBytes.runFold(ByteString.empty)(_ ++ _).flatMap { (byteString: ByteString)  =>
           val raw: String = byteString.utf8String
           if (httpResponse.status == StatusCodes.OK) {
-            val dailyResponseMaybe: Validation[String, DailyResponse] = parseString(raw, symbol)
-            val dailyResponse: Future[Validation[String, DailyResponse]] = dailyResponseMaybe match {
+            val dailyResponseMaybe: Validation[String, List[DailyOhlcv]] = parseString(raw, symbol)
+            val dailyResponse: Future[Validation[String, List[DailyOhlcv]]] = dailyResponseMaybe match {
               case scalaz.Success(_) =>
                 Future.successful(dailyResponseMaybe)
               case scalaz.Failure(_) =>
@@ -113,7 +113,7 @@ object Daily {
               queryApiInner(uri, symbol, PosZInt.from(nRetries - 1).get)
             else {
               val failureStr = s"Symbol: $symbol | StatusCode: ${httpResponse.status.intValue()} | Reason: ${httpResponse.status.reason()} | Url: ${uri.toString()}"
-              Future.successful[Validation[String, DailyResponse]](Validation.failure(failureStr))
+              Future.successful[Validation[String, List[DailyOhlcv]]](Validation.failure(failureStr))
             }
           }
         }
@@ -124,7 +124,7 @@ object Daily {
             queryApiInner(uri, symbol, PosZInt.from(nRetries - 1).get)
           else {
             val failureStr = s"Symbol: $symbol | Exception: ${ex.getMessage} | Url: ${uri.toString()}"
-            Future.successful[Validation[String, DailyResponse]](Validation.failure(failureStr))
+            Future.successful[Validation[String, List[DailyOhlcv]]](Validation.failure(failureStr))
           }
       }
 
@@ -135,7 +135,7 @@ object Daily {
     v(field).value.toString.toDouble
   }
 
-  private def parseString(s: String, symbol: Symbol): Validation[String, DailyResponse] = {
+  private def parseString(s: String, symbol: Symbol): Validation[String, List[DailyOhlcv]] = {
     try {
       val json: Value = ujson.read(s)
       json.obj.get("Time Series (Daily)") match {
@@ -159,7 +159,7 @@ object Daily {
               dailyOhlcv
             }
             .toList
-          scalaz.Success(DailyResponse(Instant.now(), dailyOhlcvBars))
+          scalaz.Success(dailyOhlcvBars)
       }
 
     } catch {

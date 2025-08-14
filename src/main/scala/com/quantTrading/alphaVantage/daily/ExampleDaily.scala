@@ -7,7 +7,7 @@ import com.quantTrading.symbols.Symbol
 import org.scalactic.anyvals.PosZInt
 import scalaz.Validation
 
-import java.time.{LocalDateTime, ZoneId}
+import java.time.{Instant, LocalDateTime, ZoneId}
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.FiniteDuration
@@ -24,12 +24,13 @@ object ExampleDaily {
     val nRetries = PosZInt(3)
     val zoneId = ZoneId.of("America/New_York")
 
-    val tick: Source[Unit, NotUsed] =
+    val tick: Source[Instant, NotUsed] =
       Source
         .tick(FiniteDuration(0L, TimeUnit.SECONDS), FiniteDuration(1L, TimeUnit.MINUTES), ())
+        .map(_ => Instant.now())
         .mapMaterializedValue(_ => NotUsed)
 
-    val queryFlow: Flow[Unit, Validation[String, List[DailyResponse]], NotUsed] =
+    val queryFlow: Flow[Instant, Validation[String, List[DailyOhlcv]], NotUsed] =
       Daily.getFlow(symbols, nRetries)
 
     val graph: RunnableGraph[NotUsed] =
