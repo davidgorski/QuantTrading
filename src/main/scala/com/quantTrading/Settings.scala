@@ -1,7 +1,6 @@
 package com.quantTrading
 
-import com.quantTrading.dateUtils.DateUtils
-import com.quantTrading.dateUtils.DateUtils.MarketCalendar
+import com.quantTrading.dateUtils.{DateUtils, MarketCalendar, MarketTimes}
 
 import java.time.{LocalDate, ZoneId, ZonedDateTime}
 import scala.collection.mutable.{SortedSet => MutableSortedSet}
@@ -17,14 +16,14 @@ object Settings {
 
   val IS_PROD: Boolean = !System.getProperty("os.name").startsWith("Windows")
 
-  val NYSE_CALENDAR: MarketCalendar = DateUtils.getNyseCalendar()
+  val NYSE_CALENDAR: MarketCalendar = DateUtils.loadNyseCalendar()
 
   val TODAY: LocalDate = DateUtils.getMostRecentBizdayIncludingToday(NYSE_CALENDAR)
 
   val RUN_TIMES: ImmutableSortedSet[ZonedDateTime] = getRunTimes(TODAY)
 
   private def getRunTimes(localDate: LocalDate): ImmutableSortedSet[ZonedDateTime] = {
-    val marketTimes: DateUtils.MarketTimes = NYSE_CALENDAR.sortedMap(localDate)
+    val marketTimes: MarketTimes = NYSE_CALENDAR.sortedMap(localDate)
     val open: ZonedDateTime = marketTimes.open
     val close: ZonedDateTime = marketTimes.close
 
