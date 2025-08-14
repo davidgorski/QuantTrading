@@ -5,25 +5,22 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, HttpResponse, StatusCodes, Uri}
 import akka.stream.Materializer
-import akka.stream.scaladsl.{Flow, Source}
+import akka.stream.scaladsl.Flow
 import akka.util.ByteString
 import com.quantTrading.{Settings, Utils}
 import com.quantTrading.symbols.Symbol
 import org.scalactic.anyvals.{PosDouble, PosZDouble, PosZInt}
 import scalaz.Validation
 import ujson.Value.Value
-
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, LocalDate}
 import scala.collection.immutable.{Map => ImmutableMap}
-import java.util.concurrent.TimeUnit
-import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 
 
 object Daily {
 
-  def getSource(
+  def getFlow(
     symbols: List[Symbol],
     nRetries: PosZInt
   )(
@@ -31,15 +28,10 @@ object Daily {
     actorSystem: ActorSystem,
     materializer: Materializer,
     executionContext: ExecutionContext
-  ): Source[Validation[String, List[DailyResponse]], NotUsed] = {
+  ): Flow[Instant, Validation[String, List[DailyResponse]], NotUsed] = {
 
-    val tick: Source[List[Symbol], NotUsed] =
-      Source
-        .tick(FiniteDuration(0L, TimeUnit.SECONDS), FiniteDuration(1L, TimeUnit.MINUTES), Symbol.symbols)
-        .mapMaterializedValue(_ => NotUsed)
-
-    val queryFlow: Flow[List[Symbol], List[Validation[String, DailyResponse]], NotUsed] =
-      Flow[List[Symbol]]
+    val queryFlow: Flow[Instant, List[Validation[String, DailyResponse]], NotUsed] =
+      Flow[Instant]
         .mapAsyncUnordered(10) { _ =>
           Future.traverse(symbols)(symbol => queryApi(symbol, nRetries))
         }
@@ -58,13 +50,13 @@ object Daily {
           }
         }
 
-    val source: Source[Validation[String, List[DailyResponse]], NotUsed] =
-      tick
+    val flow: Flow[Unit, Validation[String, List[DailyResponse]], NotUsed] =
+      Flow[Unit]
         .via(queryFlow)
         .via(queryCollectFlow)
         .mapMaterializedValue(_ => NotUsed)
 
-    source
+    flow
   }
 
   private def queryApi(
