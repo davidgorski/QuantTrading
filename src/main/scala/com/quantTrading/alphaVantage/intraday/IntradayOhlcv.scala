@@ -1,6 +1,6 @@
 package com.quantTrading.alphaVantage.intraday
 
-import com.quantTrading.symbols.Symbol
+import com.quantTrading.symbols.QtSymbol
 import org.scalactic.anyvals.{PosDouble, PosZDouble}
 import spray.json.JsonFormat
 import java.time.ZonedDateTime
@@ -8,7 +8,7 @@ import java.time.ZonedDateTime
 
 case class IntradayOhlcv(
   zonedDateTime: ZonedDateTime,
-  symbol: Symbol,
+  symbol: QtSymbol,
   open: PosDouble,
   high: PosDouble,
   low: PosDouble,

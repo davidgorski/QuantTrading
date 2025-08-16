@@ -1,6 +1,9 @@
 package com.quantTrading.config
 
 import com.quantTrading.aws.Secrets
+import com.quantTrading.dateUtils.MarketCalendar
+import com.quantTrading.symbols.QtSymbol
+import org.scalactic.anyvals.PosZInt
 import software.amazon.awssdk.regions.Region
 
 import java.time.{Clock, ZoneId}
@@ -19,5 +22,11 @@ trait Config {
   def zoneId: ZoneId
 
   def clock: Clock
+
+  def symbols: Set[QtSymbol]
+
+  def nApiRetries: PosZInt
+
+  def marketCalendar: MarketCalendar
 }
 

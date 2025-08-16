@@ -2,15 +2,15 @@ name := "QuantTrading"
 
 version := "0.1.0"
 
-scalaVersion := "2.13.16"
+scalaVersion := "3.6.4"
 
 libraryDependencies ++= Seq(
   // scala testing
   "org.scalatest" %% "scalatest" % "3.2.19" % Test,
 
   // akka streams
-  "com.typesafe.akka" %% "akka-stream" % "2.6.21",
-  "com.typesafe.akka" %% "akka-actor" % "2.6.21",
+  "com.typesafe.akka" %% "akka-stream" % "2.8.8",
+  "com.typesafe.akka" %% "akka-actor" % "2.8.8",
 
   // ssl config
   "com.typesafe" %% "ssl-config-core" % "0.6.1",
@@ -35,14 +35,14 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-math3" % "3.6.1",
 
   // mongoDB scala driver
-  "org.reactivemongo" %% "reactivemongo" % "1.0.10",
+//  "org.reactivemongo" %% "reactivemongo" % "1.0.10",
 
   // logging
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
   "org.slf4j" % "slf4j-api" % "2.0.17",
 
   // plotting
-  "org.plotly-scala" %% "plotly-render" % "0.8.5",
+//  "org.plotly-scala" %% "plotly-render" % "0.8.5",
 
   // aws s3
   "software.amazon.awssdk" % "s3" % "2.32.22",

@@ -1,6 +1,6 @@
 package com.quantTrading.infra
 
-import com.quantTrading.symbols.Symbol
+import com.quantTrading.symbols.QtSymbol
 import org.scalactic.anyvals.{PosDouble, PosZDouble}
 import java.time.LocalDate
 
@@ -8,7 +8,7 @@ import java.time.LocalDate
 trait OhlcvBase {
 
   def date: LocalDate
-  def symbol: Symbol
+  def symbol: QtSymbol
   def open: PosDouble
   def high: PosDouble
   def low: PosDouble
@@ -26,7 +26,7 @@ trait OhlcvBase {
 
 case class Ohlcv(
   date: LocalDate,
-  symbol: Symbol,
+  symbol: QtSymbol,
   open: PosDouble,
   high: PosDouble,
   low: PosDouble,

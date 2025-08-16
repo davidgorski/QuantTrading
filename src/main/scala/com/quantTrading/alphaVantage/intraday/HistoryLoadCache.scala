@@ -4,7 +4,7 @@ package com.quantTrading.alphaVantage.intraday
 import akka.http.scaladsl.model._
 import com.quantTrading.aws.S3
 import com.quantTrading.config.Config
-import com.quantTrading.symbols.Symbol
+import com.quantTrading.symbols.QtSymbol
 import com.quantTrading.Utils
 import com.typesafe.scalalogging.StrictLogging
 import org.scalactic.anyvals.{PosDouble, PosInt, PosZDouble, PosZInt}
@@ -24,8 +24,8 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 
 object HistoryLoadCache extends StrictLogging {
 
-  private case class QueryParams(
-    symbol: Symbol,
+  case class QueryParams(
+    symbol: QtSymbol,
     monthString: String,
     minuteBarInterval: MinuteBarInterval,
     zoneId: ZoneId,
@@ -35,7 +35,7 @@ object HistoryLoadCache extends StrictLogging {
   }
 
   def queryApiRange(
-    symbols: List[Symbol],
+    symbols: Set[QtSymbol],
     sd: LocalDate,
     ed: LocalDate,
     minuteBarInterval: MinuteBarInterval,
@@ -46,8 +46,12 @@ object HistoryLoadCache extends StrictLogging {
     config: Config
   ): Validation[String, List[IntradayOhlcv]] = {
 
+    // don't query for this month
+    val firstDayOfMonth = LocalDate.now(config.zoneId).withDayOfMonth(1) // get the first day of today's month
+    require(ed.isBefore(firstDayOfMonth), s"ed should be before the first day of this month (don't put this month in intraday history)")
+
     // what do we need to query for
-    val queryParamSets: List[QueryParams] =
+    val queryParamSets: Set[QueryParams] =
       symbols.flatMap { symbol =>
         getMonthStrings(symbol, sd, ed).map { monthString =>
           QueryParams(symbol, monthString, minuteBarInterval, zoneId, nRetries)
@@ -57,10 +61,10 @@ object HistoryLoadCache extends StrictLogging {
     // =================================================================================================================
     // try to get the data from s3 first
     val s3Client = new S3(config.awsRegion)
-    val keysNeeded: Set[String] = queryParamSets.map(_.getKey).toSet
+    val keysNeeded: Set[String] = queryParamSets.map(_.getKey)
     val keysInBucket: Set[String] = s3Client.getAllKeysInBucket(config.awsS3Bucket)
     val missingKeys: Set[String] = keysNeeded.diff(keysInBucket)
-    val missingQueryParams: List[QueryParams] = queryParamSets.filter(queryParams => missingKeys.contains(queryParams.getKey))
+    val missingQueryParams: Set[QueryParams] = queryParamSets.filter(queryParams => missingKeys.contains(queryParams.getKey))
     val foundKeys: List[String] = keysNeeded.intersect(keysInBucket).toList
 
     val fixedThreadPoolS3 = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(nConcurrentQueriesS3.value))
@@ -70,7 +74,7 @@ object HistoryLoadCache extends StrictLogging {
           val jsonForKey: Validation[String, String] = s3Client.readJson(config.awsS3Bucket, foundKey)
           val result: Validation[String, List[IntradayOhlcv]] = jsonForKey match {
             case scalaz.Failure(s: String) =>
-              return scalaz.Failure(s)
+              scalaz.Failure(s)
             case scalaz.Success(jsonStr: String) =>
               try {
                 scalaz.Success(jsonStr.parseJson.convertTo[List[IntradayOhlcv]])
@@ -111,7 +115,7 @@ object HistoryLoadCache extends StrictLogging {
     val sleepTimeMilli: Int = math.round(1000 / queriesPerSec).toInt
 
     logger.info(s"Loading ${missingQueryParams.size} rows from alphaVantage")
-    val listOfFuturesAlphaVantage: Future[List[(QueryParams, Validation[String, List[IntradayOhlcv]])]] =
+    val listOfFuturesAlphaVantage: Future[Set[(QueryParams, Validation[String, List[IntradayOhlcv]])]] =
       Future.traverse(missingQueryParams) { (queryParams: QueryParams) =>
         Future {
           val result: Validation[String, List[IntradayOhlcv]] = queryApi(queryParams, config)
@@ -121,21 +125,21 @@ object HistoryLoadCache extends StrictLogging {
         } (fixedThreadPoolAlphaVantage)
       } (implicitly, fixedThreadPoolAlphaVantage)
 
-    val allResultsAlphaVantage: List[(QueryParams, Validation[String, List[IntradayOhlcv]])] =
+    val allResultsAlphaVantage: Set[(QueryParams, Validation[String, List[IntradayOhlcv]])] =
       Await.result(listOfFuturesAlphaVantage, FiniteDuration(2, TimeUnit.HOURS))
 
-    val alphaVantageFailures: List[String] = allResultsAlphaVantage.collect { case (_, scalaz.Failure(fString: String)) => fString }
-    val alphaVantageSuccessesByKey: List[(QueryParams, List[IntradayOhlcv])] =
+    val alphaVantageFailures: Set[String] = allResultsAlphaVantage.collect { case (_, scalaz.Failure(fString: String)) => fString }
+    val alphaVantageSuccessesByKey: Set[(QueryParams, List[IntradayOhlcv])] =
       if (alphaVantageFailures.nonEmpty) {
         val failureString = alphaVantageFailures.mkString(" | ")
         return scalaz.Failure(failureString)
       } else {
-        val alphaVantageSuccesses: List[(QueryParams, List[IntradayOhlcv])] = allResultsAlphaVantage.map {
+        val alphaVantageSuccesses: Set[(QueryParams, List[IntradayOhlcv])] = allResultsAlphaVantage.map {
           case (queryParams: QueryParams, scalaz.Success(intradayOhlcv: List[IntradayOhlcv])) => (queryParams, intradayOhlcv)
         }
         alphaVantageSuccesses
       }
-    val alphaVantageSuccesses: List[IntradayOhlcv] = alphaVantageSuccessesByKey.flatMap(_._2)
+    val alphaVantageSuccesses: Set[IntradayOhlcv] = alphaVantageSuccessesByKey.flatMap(_._2)
     logger.info(s"Done - loaded ${alphaVantageSuccesses.size} rows from alphaVantage")
 
     // =================================================================================================================
@@ -149,7 +153,7 @@ object HistoryLoadCache extends StrictLogging {
     // =================================================================================================================
     // combine and return
     val successes = alphaVantageSuccesses ++ s3Successes
-    scalaz.Success(successes)
+    scalaz.Success(successes.toList)
   }
 
   /**
@@ -158,7 +162,7 @@ object HistoryLoadCache extends StrictLogging {
    *
    * @return
    */
-  private def getMonthStrings(symbol: Symbol, sd: LocalDate, ed: LocalDate): List[String] = {
+  private def getMonthStrings(symbol: QtSymbol, sd: LocalDate, ed: LocalDate): List[String] = {
     require(sd.isBefore(ed), "Start date must be before end date")
 
     val buffer = ListBuffer[String]()
@@ -203,7 +207,7 @@ object HistoryLoadCache extends StrictLogging {
 
   private def queryApiInner(
     uri: Uri,
-    symbol: Symbol,
+    symbol: QtSymbol,
     monthString: String,
     zoneId: ZoneId,
     minuteBarInterval: MinuteBarInterval,
@@ -234,7 +238,7 @@ object HistoryLoadCache extends StrictLogging {
         scalaz.Failure(s"($symbol, $monthString), statusCode=${response.statusCode}; statusMessage=${response.statusMessage}")
     } else {
       try {
-        parseString(response.text, symbol, zoneId, minuteBarInterval)
+        parseString(response.text(), symbol, zoneId, minuteBarInterval)
           .fold[Validation[String, List[IntradayOhlcv]]](
             x => scalaz.Failure(s"$x $uri"),
             x => scalaz.Success(x)
@@ -252,7 +256,7 @@ object HistoryLoadCache extends StrictLogging {
 
   private def parseString(
     s: String,
-    symbol: Symbol,
+    symbol: QtSymbol,
     zoneId: ZoneId,
     minuteBarInterval: MinuteBarInterval
   ): Validation[String, List[IntradayOhlcv]] = {

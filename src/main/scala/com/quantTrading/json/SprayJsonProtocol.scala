@@ -4,7 +4,7 @@ import org.scalactic.anyvals.{PosDouble, PosZDouble}
 import spray.json.{JsNumber, JsString, JsValue, JsonFormat, deserializationError}
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import com.quantTrading.symbols.Symbol
+import com.quantTrading.symbols.QtSymbol
 
 object SprayJsonProtocol {
 
@@ -40,13 +40,13 @@ object SprayJsonProtocol {
     override def write(obj: PosDouble): JsValue = JsNumber(obj.value)
   }
 
-  implicit val symbolFormat: JsonFormat[Symbol] = new JsonFormat[Symbol] {
+  implicit val symbolFormat: JsonFormat[QtSymbol] = new JsonFormat[QtSymbol] {
 
-    override def read(json: JsValue): Symbol = json match {
-      case JsString(str) => Symbol.apply(str)
+    override def read(json: JsValue): QtSymbol = json match {
+      case JsString(str) => QtSymbol.apply(str)
       case other => deserializationError(s"Expected Symbol as JsString, got $other")
     }
 
-    override def write(obj: Symbol): JsValue = JsString(obj.symbol)
+    override def write(obj: QtSymbol): JsValue = JsString(obj.symbol)
   }
 }

@@ -54,7 +54,7 @@ object DateUtils extends StrictLogging {
         val dt = marketTime.open.toLocalDate
         dt -> marketTime
       }.toMap
-    val sortedMap = SortedMap[LocalDate, MarketTimes](map.toArray:_*)(Ordering.by(_.toEpochDay))
+    val sortedMap = SortedMap[LocalDate, MarketTimes](map.toArray*)(Ordering.by(_.toEpochDay))
     MarketCalendar(sortedMap)
   }
 }

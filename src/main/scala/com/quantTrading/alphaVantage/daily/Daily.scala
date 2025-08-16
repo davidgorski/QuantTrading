@@ -9,23 +9,19 @@ import akka.stream.scaladsl.Flow
 import akka.util.ByteString
 import com.quantTrading.Utils
 import com.quantTrading.config.Config
-import com.quantTrading.symbols.Symbol
+import com.quantTrading.symbols.QtSymbol
 import org.scalactic.anyvals.{PosDouble, PosZDouble, PosZInt}
 import scalaz.Validation
 import ujson.Value.Value
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, LocalDate}
-import scala.collection.immutable.{Map => ImmutableMap}
+import scala.collection.immutable.Map as ImmutableMap
 import scala.concurrent.{ExecutionContext, Future}
 
 
 object Daily {
 
-  def getFlow(
-    symbols: List[Symbol],
-    config: Config,
-    nRetries: PosZInt
-  )(
+  def getFlow(config: Config)(
     implicit
     actorSystem: ActorSystem,
     materializer: Materializer,
@@ -35,7 +31,9 @@ object Daily {
     val queryFlow: Flow[Instant, List[Validation[String, List[DailyOhlcv]]], NotUsed] =
       Flow[Instant]
         .mapAsyncUnordered(10) { _ =>
-          Future.traverse(symbols)(symbol => queryApi(symbol, nRetries, config))
+          Future.traverse(config.symbols.toList) { (symbol: QtSymbol) =>
+            queryApi(symbol, config.nApiRetries, config)
+          }
         }
 
     val queryCollectFlow: Flow[List[Validation[String, List[DailyOhlcv]]], Validation[String, List[DailyOhlcv]], NotUsed] =
@@ -56,13 +54,18 @@ object Daily {
       Flow[Instant]
         .via(queryFlow)
         .via(queryCollectFlow)
+//        .via(toDataFrame)
         .mapMaterializedValue(_ => NotUsed)
 
     flow
   }
 
+  private def validate(listOfDailyOhlcvMaybe: scalaz.Validation[String, List[DailyOhlcv]], config: Config) = {
+    config.symbols
+  }
+
   private def queryApi(
-    symbol: Symbol,
+    symbol: QtSymbol,
     nRetries: PosZInt,
     config: Config,
   )(
@@ -88,7 +91,7 @@ object Daily {
 
   private def queryApiInner(
     uri: Uri,
-    symbol: Symbol,
+    symbol: QtSymbol,
     nRetries: PosZInt,
   )(
     implicit
@@ -138,7 +141,7 @@ object Daily {
     v(field).value.toString.toDouble
   }
 
-  private def parseString(s: String, symbol: Symbol): Validation[String, List[DailyOhlcv]] = {
+  private def parseString(s: String, symbol: QtSymbol): Validation[String, List[DailyOhlcv]] = {
     try {
       val json: Value = ujson.read(s)
       json.obj.get("Time Series (Daily)") match {

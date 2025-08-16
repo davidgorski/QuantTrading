@@ -2,8 +2,7 @@ package com.quantTrading.infra
 
 import com.quantTrading.Utils
 import org.scalactic.anyvals.{PosDouble, PosZDouble, PosZLong}
-import com.quantTrading.symbols.Symbol
-
+import com.quantTrading.symbols.QtSymbol
 import java.time.LocalDate
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
@@ -29,8 +28,8 @@ object TestUtils {
     lb + (ub - lb) * rand.nextDouble()
   }
 
-  def getRandomSymbol: Symbol = {
-    Symbol.symbols(rand.nextInt(Symbol.symbols.size))
+  def getRandomSymbol: QtSymbol = {
+    QtSymbol.symbols.toList(rand.nextInt(QtSymbol.symbols.size))
   }
 
   def getRandomOhlcv(nOhlcv: Int): List[OhlcvBase] = {
@@ -45,7 +44,7 @@ object TestUtils {
           case Some(ohlcv: Ohlcv) => ohlcv.date.plusDays(1)
         }
 
-      val symbol: Symbol =
+      val symbol: QtSymbol =
         ohlcPrev match {
           case None => getRandomSymbol
           case Some(ohlcv: Ohlcv) => ohlcv.symbol

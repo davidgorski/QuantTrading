@@ -4,7 +4,7 @@ import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.{Flow, Keep, RunnableGraph, Sink, Source}
 import com.quantTrading.config.ConfigQa
-import com.quantTrading.symbols.Symbol
+import com.quantTrading.symbols.QtSymbol
 import org.scalactic.anyvals.PosZInt
 import scalaz.Validation
 
@@ -20,10 +20,8 @@ object ExampleDaily {
 
     implicit val actorSystem: ActorSystem = ActorSystem("daily-query-example")
     implicit val executionContext: ExecutionContext = actorSystem.dispatcher
-
-    val symbols = Symbol.symbols
+    
     val nRetries = PosZInt(3)
-    val zoneId = ZoneId.of("America/New_York")
     val config = ConfigQa()
 
     val tick: Source[Instant, NotUsed] =
@@ -33,12 +31,12 @@ object ExampleDaily {
         .mapMaterializedValue(_ => NotUsed)
 
     val queryFlow: Flow[Instant, Validation[String, List[DailyOhlcv]], NotUsed] =
-      Daily.getFlow(symbols, config, nRetries)
+      Daily.getFlow(config)
 
     val graph: RunnableGraph[NotUsed] =
       tick
         .via(queryFlow)
-        .toMat(Sink.foreach(x => println(s"$x ${LocalDateTime.now(zoneId)}")))(Keep.none)
+        .toMat(Sink.foreach(x => println(s"$x ${LocalDateTime.now(config.zoneId)}")))(Keep.none)
 
     graph.run()
 

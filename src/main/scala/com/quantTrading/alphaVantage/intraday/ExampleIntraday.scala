@@ -1,7 +1,7 @@
 package com.quantTrading.alphaVantage.intraday
 
 import com.quantTrading.config.{Config, ConfigQa}
-import com.quantTrading.symbols.Symbol
+import com.quantTrading.symbols.QtSymbol
 import org.scalactic.anyvals.{PosInt, PosZInt}
 import scalaz.Validation
 
@@ -12,7 +12,7 @@ object ExampleIntraday {
 
   def main(args: Array[String]): Unit = {
 
-    val symbols = Symbol.symbols
+    val symbols = QtSymbol.symbols
     val zoneId = ZoneId.of("America/New_York")
     val sd: LocalDate = LocalDate.of(2000, 1, 1)
     val ed: LocalDate = LocalDate.now(zoneId)
